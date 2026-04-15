@@ -12,7 +12,6 @@
 
 <style>
 
-/* THEME */
 body{
     margin:0;
     font-family:Arial;
@@ -30,13 +29,14 @@ body{
     justify-content:space-between;
     padding:8px;
     background:rgba(0,0,0,0.5);
+    font-size:14px;
 }
 
 /* EARTH */
 .globe{
     width:180px;
     height:180px;
-    margin:60px auto 20px;
+    margin:60px auto 10px;
     border-radius:50%;
     background:url('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') repeat-x;
     background-size:cover;
@@ -45,6 +45,74 @@ body{
 @keyframes rotate{
     from{background-position:0;}
     to{background-position:1000px;}
+}
+
+/* ANALOG CLOCK */
+.clock{
+    width:180px;
+    height:180px;
+    border:5px solid white;
+    border-radius:50%;
+    margin:20px auto;
+    position:relative;
+    box-shadow:0 0 15px cyan;
+}
+
+/* CENTER */
+.clock::after{
+    content:'';
+    width:10px;
+    height:10px;
+    background:white;
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    border-radius:50%;
+}
+
+/* NUMBERS */
+.number{
+    position:absolute;
+    width:100%;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:flex-start;
+    font-size:14px;
+    font-weight:bold;
+    transform:rotate(calc(30deg * var(--i)));
+}
+
+.number span{
+    transform:rotate(calc(-30deg * var(--i)));
+}
+
+/* HANDS */
+.hour, .minute, .second{
+    position:absolute;
+    bottom:50%;
+    left:50%;
+    transform-origin:bottom;
+    transform:translateX(-50%);
+}
+
+.hour{
+    width:5px;
+    height:45px;
+    background:white;
+}
+
+.minute{
+    width:3px;
+    height:60px;
+    background:cyan;
+}
+
+.second{
+    width:2px;
+    height:70px;
+    background:red;
 }
 
 /* BOX */
@@ -84,28 +152,12 @@ button{
     border-radius:15px;
 }
 
-/* CHAT */
-#aiChat{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:280px;
-    background:#111;
-    border-radius:10px;
-    padding:10px;
-}
-
-#messages{
-    height:200px;
-    overflow:auto;
-    text-align:left;
-}
-
 </style>
 </head>
 
 <body>
 
+<!-- TOP BAR -->
 <div class="top-bar">
 🌡️ <span id="temp">Loading...</span>
 🕒 <span id="time"></span>
@@ -113,51 +165,66 @@ button{
 
 <h2 style="margin-top:60px;">🚀 Jodhpur Fast WiFi</h2>
 
-<!-- 🌍 EARTH -->
+<!-- EARTH -->
 <div class="globe"></div>
+
+<!-- CLOCK -->
+<div class="clock">
+
+<div class="number" style="--i:1"><span>1</span></div>
+<div class="number" style="--i:2"><span>2</span></div>
+<div class="number" style="--i:3"><span>3</span></div>
+<div class="number" style="--i:4"><span>4</span></div>
+<div class="number" style="--i:5"><span>5</span></div>
+<div class="number" style="--i:6"><span>6</span></div>
+<div class="number" style="--i:7"><span>7</span></div>
+<div class="number" style="--i:8"><span>8</span></div>
+<div class="number" style="--i:9"><span>9</span></div>
+<div class="number" style="--i:10"><span>10</span></div>
+<div class="number" style="--i:11"><span>11</span></div>
+<div class="number" style="--i:12"><span>12</span></div>
+
+<div class="hour"></div>
+<div class="minute"></div>
+<div class="second"></div>
+
+</div>
 
 <!-- SPEED -->
 <div class="box">
 <iframe src="https://fast.com" style="width:100%; height:200px; border:none;"></iframe>
 </div>
 
-<!-- PLAN -->
-<div class="box">
-<h3>🔥 Airtel Fiber ₹499 Plan</h3>
-<p>⚡ 40 Mbps Speed</p>
-<p>📶 Unlimited Data</p>
-<button onclick="orderNow()">Book Now</button>
-</div>
-
 <!-- FORM -->
 <div class="box">
 <input id="name" placeholder="Name"><br><br>
-<input id="mobile" placeholder="Mobile (+91 or 10 digit)"><br><br>
+<input id="mobile" placeholder="Mobile"><br><br>
 <input id="city" placeholder="City"><br><br>
 
-<button onclick="getLocation()">📍 Use My Location</button>
-<p id="locationText"></p>
-
+<button onclick="getLocation()">📍 Location</button>
 <button onclick="submitLead()">Submit</button>
 </div>
 
-<div id="feasibilityBox"></div>
-
-<!-- MAP -->
 <div id="map"></div>
 
-<!-- 🤖 AI CHAT -->
-<div id="aiChat">
-<div id="messages"></div>
-<input id="userInput" placeholder="Ask about WiFi...">
-<button onclick="sendAI()">Send</button>
-</div>
+<!-- WHATSAPP -->
+<a href="https://wa.me/919521393991"
+style="position:fixed;bottom:20px;right:20px;
+background:#25D366;color:white;padding:15px;
+border-radius:50%;">💬</a>
 
 <script>
 
-// TIME
+// TIME + DATE
 setInterval(()=>{
-document.getElementById("time").innerText=new Date().toLocaleTimeString();
+let now=new Date();
+
+let time=now.toLocaleTimeString('en-IN',{
+hour:'2-digit',minute:'2-digit',second:'2-digit'
+});
+let date=now.toLocaleDateString('en-IN');
+
+document.getElementById("time").innerText=time+" | "+date;
 },1000);
 
 // WEATHER
@@ -165,111 +232,48 @@ navigator.geolocation.getCurrentPosition(pos=>{
 fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`)
 .then(res=>res.json())
 .then(data=>{
-document.getElementById("temp").innerText=data.current_weather.temperature+"°C";
+document.getElementById("temp").innerText=
+`🌡️ ${data.current_weather.temperature}°C`;
 });
 });
+
+// CLOCK
+setInterval(()=>{
+let now=new Date();
+
+let sec=now.getSeconds();
+let min=now.getMinutes();
+let hr=now.getHours();
+
+document.querySelector(".second").style.transform=
+`translateX(-50%) rotate(${sec*6}deg)`;
+
+document.querySelector(".minute").style.transform=
+`translateX(-50%) rotate(${min*6}deg)`;
+
+document.querySelector(".hour").style.transform=
+`translateX(-50%) rotate(${hr*30+min/2}deg)`;
+
+},1000);
 
 // MAP
 let map;
-function loadMap(lat,lon){
-if(map){map.remove();}
-map=L.map('map').setView([lat,lon],15);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-L.marker([lat,lon]).addTo(map).bindPopup("📍 Your Location").openPopup();
-}
-
-// LOCATION
 function getLocation(){
-navigator.geolocation.getCurrentPosition(async pos=>{
+navigator.geolocation.getCurrentPosition(pos=>{
 let lat=pos.coords.latitude;
 let lon=pos.coords.longitude;
 
-loadMap(lat,lon);
+if(map){map.remove();}
+map=L.map('map').setView([lat,lon],15);
 
-let res=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-let data=await res.json();
-
-let city=data.address.city||data.address.town||data.address.village||"";
-
-document.getElementById("city").value=city;
-document.getElementById("locationText").innerText="📍 "+city;
-
-checkFeasibility(city);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.marker([lat,lon]).addTo(map);
 });
-}
-
-// FEASIBILITY
-function checkFeasibility(city){
-let cities=["Jodhpur","Jaipur","Udaipur","Kota","Ajmer","Bikaner"];
-let box=document.getElementById("feasibilityBox");
-
-if(cities.includes(city)){
-box.innerHTML="✅ Airtel Fiber Available in "+city;
-box.style.color="lightgreen";
-}else{
-box.innerHTML="⚠️ Checking availability...";
-box.style.color="orange";
-}
-}
-
-// MOBILE FIX
-function formatMobile(m){
-m=m.replace(/\D/g,'');
-if(m.startsWith("91") && m.length===12){
-m=m.substring(2);
-}
-return m;
 }
 
 // SUBMIT
 function submitLead(){
-
-let name=document.getElementById("name").value;
-let mobile=formatMobile(document.getElementById("mobile").value);
-let city=document.getElementById("city").value;
-
-if(!name || !mobile){
-alert("Fill details");
-return;
-}
-
-if(!/^[6-9]\d{9}$/.test(mobile)){
-alert("Invalid mobile");
-return;
-}
-
-navigator.geolocation.getCurrentPosition(pos=>{
-let msg=`New Lead:%0AName:${name}%0AMobile:${mobile}%0ACity:${city}%0ALocation:https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
-window.open(`https://wa.me/919521393991?text=${msg}`);
-});
-
-alert("Submitted!");
-}
-
-// ORDER
-function orderNow(){
-window.open("https://wa.me/919521393991?text=Hi I want Airtel Fiber");
-}
-
-// 🤖 AI CHAT
-async function sendAI(){
-
-let input=document.getElementById("userInput").value;
-let box=document.getElementById("messages");
-
-box.innerHTML += "<p>👤 "+input+"</p>";
-
-let res=await fetch("http://localhost:3000/chat",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({message:input})
-});
-
-let data=await res.json();
-
-box.innerHTML += "<p>🤖 "+data.reply+"</p>";
-
-document.getElementById("userInput").value="";
+alert("Lead Sent!");
 }
 
 </script>
