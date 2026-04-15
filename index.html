@@ -1,145 +1,154 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Ultra Speed Test</title>
+<title>DD Speed Test Live</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{
 margin:0;
-font-family:Poppins;
-background: radial-gradient(circle at top,#0f2027,#090a0f);
+font-family:Arial;
+background:#0b0f14;
 color:white;
 text-align:center;
 }
 
-/* HEADER */
-.logo{font-size:42px;color:#00f5ff;margin-top:20px;font-weight:700;}
-.title{opacity:0.7;margin-bottom:20px}
-
-/* CARD */
-.card{
-background:rgba(255,255,255,0.06);
-backdrop-filter:blur(18px);
-margin:15px;
-padding:20px;
-border-radius:20px;
-box-shadow:0 0 25px rgba(0,255,255,0.15);
+h1{
+color:#00c6ff;
+margin-top:15px;
 }
 
-/* SPEED CIRCLE */
+input{
+padding:10px;
+border-radius:10px;
+border:none;
+margin-top:10px;
+width:200px;
+}
+
 .circle{
-width:260px;height:260px;
+width:200px;
+height:200px;
+border-radius:50%;
+border:6px solid #00c6ff;
 margin:auto;
-border-radius:50%;
-border:8px solid rgba(255,255,255,0.08);
-position:relative;
-}
-
-.glow{
-position:absolute;
-width:100%;height:100%;
-border-radius:50%;
-border-top:8px solid #00f5ff;
-animation:spin 1.5s linear infinite;
-}
-
-@keyframes spin{100%{transform:rotate(360deg)}}
-
-.center{
-position:absolute;
-top:50%;left:50%;
-transform:translate(-50%,-50%);
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
+margin-top:20px;
 }
 
 .speed{
-font-size:28px;font-weight:700;color:#00f5ff;
+font-size:30px;
+color:#00c6ff;
+font-weight:bold;
 }
 
-.small{
-font-size:12px;opacity:0.7;
-}
-
-/* BUTTON */
 button{
 padding:12px 25px;
 border:none;
-border-radius:30px;
-background:#00f5ff;
-color:#000;
-font-weight:600;
+border-radius:25px;
+background:#00c6ff;
+color:black;
+font-weight:bold;
 cursor:pointer;
 margin-top:15px;
 }
 
-/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
 gap:10px;
-margin-top:15px;
+margin:15px;
 }
 
 .box{
-background:rgba(255,255,255,0.05);
+background:#111;
 padding:10px;
-border-radius:12px;
+border-radius:10px;
 }
 
-canvas{margin-top:15px;}
+.live, .board{
+background:#111;
+margin:15px;
+padding:15px;
+border-radius:10px;
+text-align:left;
+}
+
+#liveFeed{
+font-size:13px;
+max-height:180px;
+overflow:auto;
+}
+
+.channel-title{
+color:#00c6ff;
+font-weight:bold;
+margin-bottom:10px;
+}
 
 @media(max-width:700px){
 .grid{grid-template-columns:1fr;}
-.circle{width:200px;height:200px;}
 }
 </style>
 </head>
 
 <body>
 
-<div class="logo">DD</div>
-<div class="title">Ultra Speed Test Dashboard</div>
+<h1>DD SPEED TEST 🚀</h1>
 
-<div class="card">
+<input id="name" placeholder="Enter Name">
 
 <div class="circle">
-<div class="glow"></div>
-<div class="center">
 <div class="speed" id="speed">0</div>
-<div class="small">Mbps</div>
-</div>
+<div>Mbps</div>
 </div>
 
-<button onclick="startTest()">Start Test</button>
+<button onclick="startTest()">START TEST</button>
 
 <div class="grid">
 <div class="box">Download <h3 id="down">0</h3></div>
 <div class="box">Upload <h3 id="up">0</h3></div>
 <div class="box">Ping <h3 id="ping">0</h3></div>
+<div class="box">Score <h3 id="score">0</h3></div>
 </div>
 
 <canvas id="chart"></canvas>
 
+<!-- LIVE CHANNEL -->
+<div class="live">
+<div class="channel-title">📡 LIVE CHANNEL</div>
+<div id="liveFeed">System ready...</div>
+</div>
+
+<!-- LEADERBOARD -->
+<div class="board">
+<h3>🏆 LEADERBOARD (Local)</h3>
+<div id="leaderboard"></div>
 </div>
 
 <script>
 
 let chart;
+
+/* GRAPH INIT */
 function initChart(){
-const ctx=document.getElementById('chart');
+const ctx=document.getElementById("chart");
+
 chart=new Chart(ctx,{
-type:'line',
+type:"line",
 data:{
 labels:[],
 datasets:[{
-label:'Speed Mbps',
+label:"Speed (Mbps)",
 data:[],
-borderColor:'#00f5ff',
-tension:0.4
+borderColor:"#00c6ff",
+tension:0.3
 }]
 },
 options:{responsive:true}
@@ -147,32 +156,71 @@ options:{responsive:true}
 }
 initChart();
 
-function updateChart(val){
-if(chart.data.labels.length>20){
-chart.data.labels.shift();
-chart.data.datasets[0].data.shift();
+/* LIVE CHANNEL */
+function live(msg){
+let feed=document.getElementById("liveFeed");
+
+let div=document.createElement("div");
+div.style.borderBottom="1px solid #222";
+div.style.padding="6px";
+div.innerHTML="⚡ "+msg;
+
+feed.prepend(div);
+
+/* limit */
+if(feed.children.length>25){
+feed.removeChild(feed.lastChild);
 }
-chart.data.labels.push('');
-chart.data.datasets[0].data.push(val);
-chart.update();
 }
 
+/* START TEST */
 function startTest(){
+
+let name=document.getElementById("name").value || "User";
 
 let speed=0;
 let down=0;
 let up=0;
-let ping=Math.floor(Math.random()*50)+10;
+let ping=Math.floor(Math.random()*60)+10;
 
 document.getElementById("ping").innerText=ping+" ms";
 
+live(name+" started test");
+
 let i=setInterval(()=>{
 
-speed += Math.random()*12;
-down += Math.random()*8;
-up += Math.random()*5;
+speed += Math.random()*15;
+down += Math.random()*10;
+up += Math.random()*7;
 
-if(speed>120) clearInterval(i);
+if(speed>120){
+clearInterval(i);
+
+let score=(down+up)-(ping/10);
+document.getElementById("score").innerText=score.toFixed(2);
+
+/* LIVE UPDATES */
+live(name+" completed test");
+live("⬇ "+down.toFixed(1)+" Mbps");
+live("⬆ "+up.toFixed(1)+" Mbps");
+live("📡 Ping "+ping+" ms");
+
+/* SAVE LOCAL LEADERBOARD */
+let data = JSON.parse(localStorage.getItem("dd_data") || "[]");
+
+data.push({
+name:name,
+down:down.toFixed(1),
+up:up.toFixed(1),
+ping:ping,
+score:score.toFixed(2)
+});
+
+localStorage.setItem("dd_data",JSON.stringify(data));
+
+loadLeaderboard();
+
+}
 
 document.getElementById("speed").innerText=speed.toFixed(1);
 document.getElementById("down").innerText=down.toFixed(1)+" Mbps";
@@ -183,6 +231,39 @@ updateChart(speed);
 },200);
 
 }
+
+/* GRAPH UPDATE */
+function updateChart(v){
+if(chart.data.labels.length>25){
+chart.data.labels.shift();
+chart.data.datasets[0].data.shift();
+}
+chart.data.labels.push("");
+chart.data.datasets[0].data.push(v);
+chart.update();
+}
+
+/* LEADERBOARD */
+function loadLeaderboard(){
+
+let data = JSON.parse(localStorage.getItem("dd_data") || "[]");
+
+data = data.slice(-10).reverse();
+
+let html="";
+
+data.forEach(d=>{
+html+=`
+<div style="padding:6px;border-bottom:1px solid #222">
+🏅 ${d.name} | ⬇ ${d.down} | ⬆ ${d.up} | Score: ${d.score}
+</div>`;
+});
+
+document.getElementById("leaderboard").innerHTML=html;
+
+}
+
+loadLeaderboard();
 
 </script>
 
