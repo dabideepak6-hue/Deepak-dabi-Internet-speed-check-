@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deepak Dabi Speed Test</title>
+<title>DD Speed Test</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&display=swap" rel="stylesheet">
 
@@ -11,12 +11,32 @@
 body {
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     color: white;
     text-align: center;
+    background: black;
+    overflow: hidden;
 }
 
-/* LOGO */
+/* Neon Grid */
+body::before {
+    content: "";
+    position: fixed;
+    width: 200%;
+    height: 200%;
+    background-image: 
+        linear-gradient(rgba(0,255,255,0.2) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,255,0.2) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridMove 10s linear infinite;
+    transform: perspective(500px) rotateX(60deg);
+    z-index: -1;
+}
+@keyframes gridMove {
+    0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+    100% { transform: perspective(500px) rotateX(60deg) translateY(60px); }
+}
+
+/* Logo */
 .logo {
     width:120px;
     height:120px;
@@ -28,59 +48,85 @@ body {
     font-weight:bold;
     margin:20px auto;
     background: linear-gradient(45deg,#00c6ff,#0072ff,#ff00cc);
-    color:white;
     animation: glow 2s infinite alternate, rotate 6s linear infinite;
 }
-
-/* Glow */
 @keyframes glow {
     0% { box-shadow: 0 0 10px #00c6ff; }
     100% { box-shadow: 0 0 30px #ff00cc; }
 }
-
-/* Rotate */
 @keyframes rotate {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
 }
 
-/* TEXT */
-.name {
-    font-size:28px;
-    font-weight:600;
+/* Neon Name */
+.neon-text {
+    font-size: 30px;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff, 0 0 20px #0072ff;
 }
-.title {
+
+/* Meter */
+.meter {
+    width:200px;
+    height:200px;
+    border-radius:50%;
+    border:6px solid rgba(255,255,255,0.1);
+    margin:20px auto;
+    position:relative;
+}
+.fill {
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    border-top:6px solid #00c6ff;
+    animation: spin 2s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.brand {
+    position:absolute;
+    top:30%;
+    left:50%;
+    transform:translate(-50%,-50%);
     color:#00c6ff;
 }
-
-/* CARD */
-.card {
-    margin:20px auto;
-    padding:20px;
-    max-width:900px;
-    background:rgba(255,255,255,0.08);
-    border-radius:20px;
-    backdrop-filter: blur(10px);
-    box-shadow:0 0 30px rgba(0,0,0,0.5);
+.username {
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:14px;
+}
+.speed-text {
+    position:absolute;
+    top:70%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    font-size:20px;
+    color:#00ffcc;
 }
 
-/* BUTTON */
+/* Button */
 .btn {
-    margin-top:15px;
-    padding:12px 25px;
+    padding:10px 20px;
     border:none;
-    border-radius:30px;
-    background:linear-gradient(45deg,#00c6ff,#0072ff);
-    color:white;
-    font-weight:bold;
-    cursor:pointer;
+    border-radius:20px;
+    background:#00c6ff;
+    margin-top:10px;
 }
 
-/* FOOTER */
-.footer {
-    margin-top:30px;
-    font-size:13px;
-    opacity:0.7;
+/* Cursor Glow */
+.cursor-glow {
+    position: fixed;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    pointer-events: none;
+    background: radial-gradient(circle, rgba(0,255,255,0.6), transparent 60%);
 }
 </style>
 
@@ -89,35 +135,42 @@ body {
 
 <div class="logo">DD</div>
 
-<div class="name">🚀 Deepak Dabi</div>
-<div class="title">Internet Speed Test</div>
+<div class="neon-text">Deepak Dabi</div>
 
-<div class="card">
-<h2>📶 Live Speed Test</h2>
-
-<iframe src="https://fast.com" width="100%" height="420" style="border-radius:10px;"></iframe>
-
-<button class="btn" onclick="location.reload()">🔄 Restart</button>
-<br>
-<button class="btn" onclick="share()">📲 Share</button>
+<div class="meter">
+    <div class="fill"></div>
+    <div class="brand">DD Speed</div>
+    <div class="username">Deepak Dabi</div>
+    <div class="speed-text" id="speed">0 Mbps</div>
 </div>
 
-<div class="card">
-<h3>💡 Speed Tips</h3>
-<p>✔ Router near रखो</p>
-<p>✔ Background apps बंद करो</p>
-<p>✔ 5GHz WiFi use करो</p>
-</div>
+<button class="btn" onclick="playSound(); startSpeed()">Start</button>
 
-<div class="footer">
-© 2026 Deepak Dabi | Made for Viral 🔥
-</div>
+<iframe src="https://fast.com" width="90%" height="300"></iframe>
+
+<audio id="clickSound" src="https://www.soundjay.com/buttons/button-3.mp3"></audio>
+
+<div class="cursor-glow"></div>
 
 <script>
-function share(){
-let text = "🔥 Apni Internet Speed check karo 👇\\n" + window.location.href;
-window.open("https://wa.me/?text=" + encodeURIComponent(text));
+function startSpeed(){
+let speed = 0;
+let interval = setInterval(()=>{
+    speed += Math.random()*10;
+    if(speed>=100) clearInterval(interval);
+    document.getElementById("speed").innerText = speed.toFixed(1)+" Mbps";
+},200);
 }
+
+function playSound(){
+document.getElementById("clickSound").play();
+}
+
+document.addEventListener("mousemove",(e)=>{
+let glow=document.querySelector(".cursor-glow");
+glow.style.left=e.clientX+"px";
+glow.style.top=e.clientY+"px";
+});
 </script>
 
 </body>
