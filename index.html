@@ -3,38 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD YouTube TV System</title>
+<title>DD YouTube TV Dashboard</title>
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:#0b0f14;
+background:#000;
 color:white;
+font-family:Arial;
 text-align:center;
 }
 
 h1{
 color:#00c6ff;
-margin:15px;
+margin:10px;
 }
 
 .container{
-max-width:900px;
+max-width:1100px;
 margin:auto;
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:10px;
 padding:10px;
 }
 
 .card{
 background:#111;
-padding:15px;
-margin:10px;
+padding:12px;
 border-radius:12px;
 }
 
 iframe{
 width:100%;
-height:360px;
+height:400px;
 border:none;
 border-radius:12px;
 }
@@ -50,57 +52,85 @@ font-weight:bold;
 cursor:pointer;
 }
 
-input{
-padding:10px;
-border-radius:8px;
-border:none;
-width:200px;
-margin:5px;
+.big{
+font-size:26px;
+color:#00c6ff;
+font-weight:bold;
+}
+
+.ticker{
+background:#111;
+padding:8px;
+border-top:2px solid #00c6ff;
+border-bottom:2px solid #00c6ff;
+overflow:hidden;
+}
+
+.ticker span{
+display:inline-block;
+white-space:nowrap;
+animation:scroll 10s linear infinite;
+color:#00f5ff;
+font-weight:bold;
+}
+
+@keyframes scroll{
+0%{transform:translateX(100%)}
+100%{transform:translateX(-100%)}
+}
+
+@media(max-width:900px){
+.container{grid-template-columns:1fr;}
 }
 </style>
 </head>
 
 <body>
 
-<h1>📺 DD FULL YOUTUBE TV SYSTEM</h1>
+<h1>📺 DD YOUTUBE TV DASHBOARD</h1>
+
+<div class="ticker">
+<span id="news">DD TV DASHBOARD ACTIVE • YOUTUBE CONNECTED • LIVE DATA READY • AUTO MODE ENABLED • SYSTEM RUNNING...</span>
+</div>
 
 <div class="container">
 
 <!-- PLAYER -->
 <div class="card">
+
 <iframe id="player"
-src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+src=""
 allow="autoplay; encrypted-media"
 allowfullscreen>
 </iframe>
+
+<div>
+<button onclick="loadLatest()">🔄 Latest Video</button>
+<button onclick="autoMode()">🔁 AUTO MODE</button>
+<button onclick="stop()">⛔ STOP</button>
 </div>
-
-<!-- CONTROLS -->
-<div class="card">
-<h3>🎬 Video Controls</h3>
-
-<button onclick="prevVideo()">⏮ Prev</button>
-<button onclick="nextVideo()">⏭ Next</button>
-<button onclick="autoPlay()">🔁 Auto Play</button>
 
 </div>
 
-<!-- CUSTOM INPUT -->
+<!-- SUBSCRIBER -->
 <div class="card">
-<h3>🔎 Play Custom Video</h3>
-<input id="videoId" placeholder="Enter YouTube Video ID">
-<button onclick="playCustom()">Play</button>
+
+<h3>📊 LIVE SUBSCRIBERS</h3>
+
+<div class="big" id="subs">Loading...</div>
+
+<button onclick="getSubs()">Refresh</button>
+
 </div>
 
-<!-- YOUR CHANNEL PLAYLIST -->
+<!-- AI PANEL -->
 <div class="card">
-<h3>📡 Your Channel Videos (Auto Playlist)</h3>
 
-<iframe
-src="https://www.youtube.com/embed/videoseries?list=UUxxxxxxxxxxxx&autoplay=1&loop=1"
-allow="autoplay; encrypted-media"
-allowfullscreen>
-</iframe>
+<h3>🧠 GROWTH AI</h3>
+
+<div class="big" id="ai">Ready</div>
+
+<button onclick="ai()">Generate Tip</button>
 
 </div>
 
@@ -108,60 +138,104 @@ allowfullscreen>
 
 <script>
 
-/* SAMPLE VIDEO LIST */
-let videos=[
-"dQw4w9WgXcQ",
-"3JZ_D3ELwOQ",
-"kJQP7kiw5Fk",
-"tgbNymZ7vqY"
-];
+/* 🔥 STEP 1: PUT YOUR DETAILS HERE */
+const API_KEY = "AIzaSyClXgWiIAt4HKo78hMlQcmMZ1JCl0tY8pg";
+const CHANNEL_ID = "UCz8pPrV3SmCKRUem0R1JvOw";
 
-let index=0;
+let videos=[];
+let i=0;
+let interval;
 
-/* LOAD VIDEO */
-function loadVideo(id){
+/* LOAD LATEST VIDEOS */
+async function loadLatest(){
+
+let url=`https://www.googleapis.com/youtube/v3/search?key=${API_KEY}&channelId=${CHANNEL_ID}&part=id&order=date&maxResults=5`;
+
+let res=await fetch(url);
+let data=await res.json();
+
+videos=data.items
+.filter(v=>v.id.videoId)
+.map(v=>v.id.videoId);
+
+play(videos[0]);
+}
+
+/* PLAY VIDEO */
+function play(id){
 document.getElementById("player").src=
 "https://www.youtube.com/embed/"+id+"?autoplay=1";
 }
 
-/* NEXT */
-function nextVideo(){
-index++;
-if(index>=videos.length) index=0;
-loadVideo(videos[index]);
-}
+/* AUTO MODE */
+function autoMode(){
+stop();
 
-/* PREV */
-function prevVideo(){
-index--;
-if(index<0) index=videos.length-1;
-loadVideo(videos[index]);
-}
-
-/* AUTO PLAY */
-let auto=false;
-let interval;
-
-function autoPlay(){
-
-auto=!auto;
-
-if(auto){
 interval=setInterval(()=>{
-nextVideo();
+i++;
+if(i>=videos.length) i=0;
+play(videos[i]);
 },5000);
-}else{
+}
+
+/* STOP */
+function stop(){
 clearInterval(interval);
 }
+
+/* SUBSCRIBER COUNT */
+async function getSubs(){
+
+try{
+let url=`https://www.googleapis.com/youtube/v3/channels?part=statistics&id=${CHANNEL_ID}&key=${API_KEY}`;
+
+let res=await fetch(url);
+let data=await res.json();
+
+let subs=data.items[0].statistics.subscriberCount;
+
+document.getElementById("subs").innerText=
+Number(subs).toLocaleString()+" Subscribers";
+
+}catch(e){
+document.getElementById("subs").innerText="API Error";
 }
 
-/* CUSTOM VIDEO */
-function playCustom(){
-let id=document.getElementById("videoId").value;
-if(id){
-loadVideo(id);
 }
+
+/* AI TIPS */
+let tips=[
+"Upload 2 Shorts Daily",
+"Use Trending Topics",
+"Make Series Content",
+"Improve Thumbnails",
+"Go Live Weekly"
+];
+
+function ai(){
+let r=Math.floor(Math.random()*tips.length);
+document.getElementById("ai").innerText=tips[r];
 }
+
+/* NEWS */
+let news=[
+"DD TV ACTIVE",
+"YOUTUBE CONNECTED",
+"LIVE SYSTEM RUNNING",
+"AUTO MODE READY",
+"AI ENGINE ONLINE"
+];
+
+let n=0;
+
+setInterval(()=>{
+document.getElementById("news").innerText=news[n];
+n=(n+1)%news.length;
+},4000);
+
+/* INIT */
+getSubs();
+loadLatest();
 
 </script>
 
