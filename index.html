@@ -1,26 +1,28 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Airtel Fiber Jodhpur</title>
 
+<title>Deepak Dabi Fiber - Jodhpur</title>
+
+<!-- MAP -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
 
 /* THEME */
-body {
+body{
     margin:0;
-    font-family: Arial;
+    font-family:Arial;
     color:white;
     text-align:center;
     background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
 }
 
 /* TOP BAR */
-.top-bar {
+.top-bar{
     position:fixed;
     top:0;
     width:100%;
@@ -31,23 +33,23 @@ body {
 }
 
 /* EARTH */
-.globe {
-    width:200px;
-    height:200px;
-    margin:70px auto 20px;
+.globe{
+    width:180px;
+    height:180px;
+    margin:60px auto 20px;
     border-radius:50%;
     background:url('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') repeat-x;
     background-size:cover;
     animation:rotate 20s linear infinite;
 }
-@keyframes rotate {
-    from {background-position:0;}
-    to {background-position:1000px;}
+@keyframes rotate{
+    from{background-position:0;}
+    to{background-position:1000px;}
 }
 
 /* BOX */
-.box {
-    background: rgba(255,255,255,0.1);
+.box{
+    background:rgba(255,255,255,0.1);
     padding:15px;
     margin:15px auto;
     width:90%;
@@ -56,7 +58,7 @@ body {
 }
 
 /* INPUT */
-input {
+input{
     width:90%;
     padding:10px;
     border:none;
@@ -64,7 +66,7 @@ input {
 }
 
 /* BUTTON */
-button {
+button{
     padding:10px 20px;
     border:none;
     border-radius:20px;
@@ -75,11 +77,28 @@ button {
 }
 
 /* MAP */
-#map {
+#map{
     height:300px;
     width:90%;
     margin:20px auto;
     border-radius:15px;
+}
+
+/* CHAT */
+#aiChat{
+    position:fixed;
+    bottom:20px;
+    right:20px;
+    width:280px;
+    background:#111;
+    border-radius:10px;
+    padding:10px;
+}
+
+#messages{
+    height:200px;
+    overflow:auto;
+    text-align:left;
 }
 
 </style>
@@ -92,14 +111,14 @@ button {
 🕒 <span id="time"></span>
 </div>
 
-<h2 style="margin-top:60px;">🚀 Internet Speed Test - Jodhpur</h2>
+<h2 style="margin-top:60px;">🚀 Jodhpur Fast WiFi</h2>
 
 <!-- 🌍 EARTH -->
 <div class="globe"></div>
 
 <!-- SPEED -->
 <div class="box">
-<iframe src="https://fast.com" style="width:100%; height:250px; border:none;"></iframe>
+<iframe src="https://fast.com" style="width:100%; height:200px; border:none;"></iframe>
 </div>
 
 <!-- PLAN -->
@@ -112,8 +131,6 @@ button {
 
 <!-- FORM -->
 <div class="box">
-<h3>📡 New Connection</h3>
-
 <input id="name" placeholder="Name"><br><br>
 <input id="mobile" placeholder="Mobile (+91 or 10 digit)"><br><br>
 <input id="city" placeholder="City"><br><br>
@@ -126,13 +143,21 @@ button {
 
 <div id="feasibilityBox"></div>
 
+<!-- MAP -->
 <div id="map"></div>
+
+<!-- 🤖 AI CHAT -->
+<div id="aiChat">
+<div id="messages"></div>
+<input id="userInput" placeholder="Ask about WiFi...">
+<button onclick="sendAI()">Send</button>
+</div>
 
 <script>
 
 // TIME
 setInterval(()=>{
-document.getElementById("time").innerText = new Date().toLocaleTimeString();
+document.getElementById("time").innerText=new Date().toLocaleTimeString();
 },1000);
 
 // WEATHER
@@ -140,99 +165,111 @@ navigator.geolocation.getCurrentPosition(pos=>{
 fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`)
 .then(res=>res.json())
 .then(data=>{
-document.getElementById("temp").innerText = data.current_weather.temperature+"°C";
+document.getElementById("temp").innerText=data.current_weather.temperature+"°C";
 });
 });
 
 // MAP
 let map;
-function loadMap(lat, lon){
-if(map){ map.remove(); }
-map = L.map('map').setView([lat, lon], 15);
+function loadMap(lat,lon){
+if(map){map.remove();}
+map=L.map('map').setView([lat,lon],15);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-L.marker([lat, lon]).addTo(map).bindPopup("📍 Your Location").openPopup();
+L.marker([lat,lon]).addTo(map).bindPopup("📍 Your Location").openPopup();
 }
 
 // LOCATION
 function getLocation(){
-navigator.geolocation.getCurrentPosition(async (pos)=>{
+navigator.geolocation.getCurrentPosition(async pos=>{
+let lat=pos.coords.latitude;
+let lon=pos.coords.longitude;
 
-let lat = pos.coords.latitude;
-let lon = pos.coords.longitude;
+loadMap(lat,lon);
 
-loadMap(lat, lon);
+let res=await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+let data=await res.json();
 
-let res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
-let data = await res.json();
+let city=data.address.city||data.address.town||data.address.village||"";
 
-let city = data.address.city || data.address.town || data.address.village || "";
-
-document.getElementById("city").value = city;
-document.getElementById("locationText").innerText = "📍 " + city;
+document.getElementById("city").value=city;
+document.getElementById("locationText").innerText="📍 "+city;
 
 checkFeasibility(city);
-
 });
 }
 
 // FEASIBILITY
 function checkFeasibility(city){
-let cities = ["Jodhpur","Jaipur","Udaipur","Kota","Ajmer","Bikaner"];
-let box = document.getElementById("feasibilityBox");
+let cities=["Jodhpur","Jaipur","Udaipur","Kota","Ajmer","Bikaner"];
+let box=document.getElementById("feasibilityBox");
 
 if(cities.includes(city)){
-box.innerHTML = "✅ Airtel Fiber Available in " + city;
+box.innerHTML="✅ Airtel Fiber Available in "+city;
 box.style.color="lightgreen";
 }else{
-box.innerHTML = "⚠️ Checking availability...";
+box.innerHTML="⚠️ Checking availability...";
 box.style.color="orange";
 }
 }
 
 // MOBILE FIX
-function formatMobile(mobile){
-mobile = mobile.replace(/\D/g,'');
-if(mobile.startsWith("91") && mobile.length===12){
-mobile = mobile.substring(2);
+function formatMobile(m){
+m=m.replace(/\D/g,'');
+if(m.startsWith("91") && m.length===12){
+m=m.substring(2);
 }
-return mobile;
+return m;
 }
 
 // SUBMIT
 function submitLead(){
 
-let name = document.getElementById("name").value;
-let mobile = document.getElementById("mobile").value;
-let city = document.getElementById("city").value;
+let name=document.getElementById("name").value;
+let mobile=formatMobile(document.getElementById("mobile").value);
+let city=document.getElementById("city").value;
 
-if(name=="" || mobile==""){
+if(!name || !mobile){
 alert("Fill details");
 return;
 }
 
-mobile = formatMobile(mobile);
-
 if(!/^[6-9]\d{9}$/.test(mobile)){
-alert("Enter valid mobile number");
+alert("Invalid mobile");
 return;
 }
 
 navigator.geolocation.getCurrentPosition(pos=>{
-
-let lat = pos.coords.latitude;
-let lon = pos.coords.longitude;
-
-let msg = `New Lead:%0AName: ${name}%0AMobile: ${mobile}%0ACity: ${city}%0ALocation: https://maps.google.com/?q=${lat},${lon}`;
-
+let msg=`New Lead:%0AName:${name}%0AMobile:${mobile}%0ACity:${city}%0ALocation:https://maps.google.com/?q=${pos.coords.latitude},${pos.coords.longitude}`;
 window.open(`https://wa.me/919521393991?text=${msg}`);
-
 });
 
-alert("Submitted Successfully!");
+alert("Submitted!");
 }
 
+// ORDER
 function orderNow(){
 window.open("https://wa.me/919521393991?text=Hi I want Airtel Fiber");
+}
+
+// 🤖 AI CHAT
+async function sendAI(){
+
+let input=document.getElementById("userInput").value;
+let box=document.getElementById("messages");
+
+box.innerHTML += "<p>👤 "+input+"</p>";
+
+let res=await fetch("http://localhost:3000/chat",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({message:input})
+});
+
+let data=await res.json();
+
+box.innerHTML += "<p>🤖 "+data.reply+"</p>";
+
+document.getElementById("userInput").value="";
 }
 
 </script>
