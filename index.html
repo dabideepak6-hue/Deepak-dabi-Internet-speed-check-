@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Speed Test Live</title>
+<title>DD NEWS TV MODE</title>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
@@ -11,261 +11,204 @@
 body{
 margin:0;
 font-family:Arial;
-background:#0b0f14;
+background:#000;
 color:white;
 text-align:center;
 }
 
 h1{
 color:#00c6ff;
-margin-top:15px;
+margin:10px;
 }
 
-input{
+/* NEWS TICKER */
+.ticker{
+background:#111;
+padding:8px;
+overflow:hidden;
+border-top:2px solid #00c6ff;
+border-bottom:2px solid #00c6ff;
+}
+
+.ticker span{
+display:inline-block;
+white-space:nowrap;
+animation:scroll 12s linear infinite;
+color:#00f5ff;
+font-weight:bold;
+}
+
+@keyframes scroll{
+0%{transform:translateX(100%)}
+100%{transform:translateX(-100%)}
+}
+
+/* LAYOUT */
+.container{
+display:grid;
+grid-template-columns:2fr 1fr;
+gap:10px;
+padding:10px;
+}
+
+.card{
+background:#111;
 padding:10px;
 border-radius:10px;
+}
+
+input,button{
+padding:10px;
+margin:5px;
+border-radius:10px;
 border:none;
-margin-top:10px;
-width:200px;
+}
+
+button{
+background:#00c6ff;
+color:black;
+font-weight:bold;
+cursor:pointer;
 }
 
 .circle{
-width:200px;
-height:200px;
+width:180px;
+height:180px;
 border-radius:50%;
-border:6px solid #00c6ff;
+border:5px solid #00c6ff;
 margin:auto;
 display:flex;
 align-items:center;
 justify-content:center;
 flex-direction:column;
-margin-top:20px;
 }
 
 .speed{
-font-size:30px;
+font-size:26px;
 color:#00c6ff;
 font-weight:bold;
 }
 
-button{
-padding:12px 25px;
-border:none;
-border-radius:25px;
-background:#00c6ff;
-color:black;
-font-weight:bold;
-cursor:pointer;
-margin-top:15px;
-}
-
-.grid{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:10px;
-margin:15px;
-}
-
-.box{
-background:#111;
+.livebox{
+background:#000;
 padding:10px;
 border-radius:10px;
 }
 
-.live, .board{
-background:#111;
-margin:15px;
-padding:15px;
+iframe{
+width:100%;
+height:220px;
+border:none;
 border-radius:10px;
-text-align:left;
 }
 
-#liveFeed{
-font-size:13px;
-max-height:180px;
-overflow:auto;
-}
-
-.channel-title{
-color:#00c6ff;
-font-weight:bold;
-margin-bottom:10px;
-}
-
-@media(max-width:700px){
-.grid{grid-template-columns:1fr;}
+@media(max-width:900px){
+.container{grid-template-columns:1fr;}
 }
 </style>
 </head>
 
 <body>
 
-<h1>DD SPEED TEST 🚀</h1>
+<h1>📺 DD NEWS TV MODE</h1>
+
+<!-- 🔥 NEWS TICKER -->
+<div class="ticker">
+<span id="tickerText">Breaking: India Tech Update • Global Internet Speed Rising • DD News TV Live Active • Cyber Safety Alert • New 5G Expansion...</span>
+</div>
+
+<div class="container">
+
+<!-- LEFT PANEL -->
+<div class="card">
 
 <input id="name" placeholder="Enter Name">
+<br>
 
 <div class="circle">
 <div class="speed" id="speed">0</div>
 <div>Mbps</div>
 </div>
 
-<button onclick="startTest()">START TEST</button>
+<button onclick="startTest()">START SPEED TEST</button>
 
-<div class="grid">
-<div class="box">Download <h3 id="down">0</h3></div>
-<div class="box">Upload <h3 id="up">0</h3></div>
-<div class="box">Ping <h3 id="ping">0</h3></div>
-<div class="box">Score <h3 id="score">0</h3></div>
+<div>
+⬇ Download: <span id="down">0</span><br>
+⬆ Upload: <span id="up">0</span><br>
+📡 Ping: <span id="ping">0</span><br>
+🏆 Score: <span id="score">0</span>
 </div>
 
 <canvas id="chart"></canvas>
 
-<!-- LIVE CHANNEL -->
-<div class="live">
-<div class="channel-title">📡 LIVE CHANNEL</div>
+</div>
+
+<!-- RIGHT PANEL -->
+<div class="card">
+
+<h3>📡 LIVE NEWS STREAM</h3>
+
+<!-- LIVE VIDEO -->
+<iframe id="newsFrame"
+src="https://www.youtube.com/embed/live_stream?channel=UCupvZG-5ko_eiXAupbDfxWw"
+allowfullscreen>
+</iframe>
+
+<br><br>
+
+<button onclick="changeChannel('bbc')">BBC</button>
+<button onclick="changeChannel('india')">INDIA</button>
+<button onclick="changeChannel('tech')">TECH</button>
+
+<div class="livebox">
+<h4>⚡ LIVE CHANNEL FEED</h4>
 <div id="liveFeed">System ready...</div>
 </div>
 
-<!-- LEADERBOARD -->
-<div class="board">
-<h3>🏆 LEADERBOARD (Local)</h3>
-<div id="leaderboard"></div>
+</div>
+
 </div>
 
 <script>
 
 let chart;
 
-/* GRAPH INIT */
+/* NEWS TICKER ROTATION */
+let news=[
+"Breaking: Global internet speeds increase",
+"India launches new digital infrastructure upgrade",
+"Cyber security alert issued worldwide",
+"5G expansion improves connectivity",
+"AI revolution in news broadcasting",
+"DD News TV system active"
+];
+
+let i=0;
+setInterval(()=>{
+document.getElementById("tickerText").innerText=news[i];
+i=(i+1)%news.length;
+},4000);
+
+/* CHANNEL SWITCH */
+function changeChannel(type){
+
+let url="";
+
+if(type==="bbc"){
+url="https://www.youtube.com/embed/live_stream?channel=UCupvZG-5ko_eiXAupbDfxWw";
+}
+if(type==="india"){
+url="https://www.youtube.com/embed/live_stream?channel=UC16niRr50-MSBwiO3YDb3RA";
+}
+if(type==="tech"){
+url="https://www.youtube.com/embed/live_stream?channel=UCE_M8A5yxnLfW0KghEeajjw";
+}
+
+document.getElementById("newsFrame").src=url;
+}
+
+/* GRAPH */
 function initChart(){
 const ctx=document.getElementById("chart");
-
 chart=new Chart(ctx,{
-type:"line",
-data:{
-labels:[],
-datasets:[{
-label:"Speed (Mbps)",
-data:[],
-borderColor:"#00c6ff",
-tension:0.3
-}]
-},
-options:{responsive:true}
-});
-}
-initChart();
-
-/* LIVE CHANNEL */
-function live(msg){
-let feed=document.getElementById("liveFeed");
-
-let div=document.createElement("div");
-div.style.borderBottom="1px solid #222";
-div.style.padding="6px";
-div.innerHTML="⚡ "+msg;
-
-feed.prepend(div);
-
-/* limit */
-if(feed.children.length>25){
-feed.removeChild(feed.lastChild);
-}
-}
-
-/* START TEST */
-function startTest(){
-
-let name=document.getElementById("name").value || "User";
-
-let speed=0;
-let down=0;
-let up=0;
-let ping=Math.floor(Math.random()*60)+10;
-
-document.getElementById("ping").innerText=ping+" ms";
-
-live(name+" started test");
-
-let i=setInterval(()=>{
-
-speed += Math.random()*15;
-down += Math.random()*10;
-up += Math.random()*7;
-
-if(speed>120){
-clearInterval(i);
-
-let score=(down+up)-(ping/10);
-document.getElementById("score").innerText=score.toFixed(2);
-
-/* LIVE UPDATES */
-live(name+" completed test");
-live("⬇ "+down.toFixed(1)+" Mbps");
-live("⬆ "+up.toFixed(1)+" Mbps");
-live("📡 Ping "+ping+" ms");
-
-/* SAVE LOCAL LEADERBOARD */
-let data = JSON.parse(localStorage.getItem("dd_data") || "[]");
-
-data.push({
-name:name,
-down:down.toFixed(1),
-up:up.toFixed(1),
-ping:ping,
-score:score.toFixed(2)
-});
-
-localStorage.setItem("dd_data",JSON.stringify(data));
-
-loadLeaderboard();
-
-}
-
-document.getElementById("speed").innerText=speed.toFixed(1);
-document.getElementById("down").innerText=down.toFixed(1)+" Mbps";
-document.getElementById("up").innerText=up.toFixed(1)+" Mbps";
-
-updateChart(speed);
-
-},200);
-
-}
-
-/* GRAPH UPDATE */
-function updateChart(v){
-if(chart.data.labels.length>25){
-chart.data.labels.shift();
-chart.data.datasets[0].data.shift();
-}
-chart.data.labels.push("");
-chart.data.datasets[0].data.push(v);
-chart.update();
-}
-
-/* LEADERBOARD */
-function loadLeaderboard(){
-
-let data = JSON.parse(localStorage.getItem("dd_data") || "[]");
-
-data = data.slice(-10).reverse();
-
-let html="";
-
-data.forEach(d=>{
-html+=`
-<div style="padding:6px;border-bottom:1px solid #222">
-🏅 ${d.name} | ⬇ ${d.down} | ⬆ ${d.up} | Score: ${d.score}
-</div>`;
-});
-
-document.getElementById("leaderboard").innerHTML=html;
-
-}
-
-loadLeaderboard();
-
-</script>
-
-</body>
-</html>
+type:"line
