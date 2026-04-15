@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD YouTube Growth Dashboard</title>
+<title>DD YouTube TV System</title>
 
 <style>
 body{
@@ -30,88 +30,77 @@ background:#111;
 padding:15px;
 margin:10px;
 border-radius:12px;
-text-align:left;
-box-shadow:0 0 10px #00c6ff22;
 }
 
-input,button{
-padding:10px;
-margin:5px;
-border-radius:8px;
+iframe{
+width:100%;
+height:360px;
 border:none;
+border-radius:12px;
 }
 
 button{
+padding:10px 15px;
+margin:5px;
+border:none;
+border-radius:10px;
 background:#00c6ff;
 color:black;
 font-weight:bold;
 cursor:pointer;
 }
 
-.big{
-font-size:30px;
-color:#00c6ff;
-font-weight:bold;
-}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:10px;
-}
-
-@media(max-width:700px){
-.grid{grid-template-columns:1fr;}
+input{
+padding:10px;
+border-radius:8px;
+border:none;
+width:200px;
+margin:5px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>📺 DD YOUTUBE GROWTH DASHBOARD</h1>
+<h1>📺 DD FULL YOUTUBE TV SYSTEM</h1>
 
 <div class="container">
 
-<!-- SUBSCRIBER COUNTER -->
+<!-- PLAYER -->
 <div class="card">
-<h3>📊 Subscriber Tracker</h3>
-
-<input id="subs" placeholder="Enter Current Subscribers">
-<button onclick="updateSubs()">Update</button>
-
-<div class="big" id="subCount">0</div>
-<p>Live Counter (Manual / API Ready)</p>
+<iframe id="player"
+src="https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1"
+allow="autoplay; encrypted-media"
+allowfullscreen>
+</iframe>
 </div>
 
-<!-- VIDEO IDEAS -->
+<!-- CONTROLS -->
 <div class="card">
-<h3>🔥 Viral Video Ideas</h3>
-<button onclick="generateIdea()">Generate Idea</button>
+<h3>🎬 Video Controls</h3>
 
-<div id="ideaBox" style="margin-top:10px;color:#00f5ff;"></div>
+<button onclick="prevVideo()">⏮ Prev</button>
+<button onclick="nextVideo()">⏭ Next</button>
+<button onclick="autoPlay()">🔁 Auto Play</button>
+
 </div>
 
-<!-- UPLOAD PLANNER -->
+<!-- CUSTOM INPUT -->
 <div class="card">
-<h3>📅 Upload Planner (Shorts Strategy)</h3>
-
-<input id="title" placeholder="Video Topic">
-<button onclick="addPlan()">Add</button>
-
-<div id="planList"></div>
+<h3>🔎 Play Custom Video</h3>
+<input id="videoId" placeholder="Enter YouTube Video ID">
+<button onclick="playCustom()">Play</button>
 </div>
 
-<!-- GROWTH TIPS -->
+<!-- YOUR CHANNEL PLAYLIST -->
 <div class="card">
-<h3>🚀 Growth Tips</h3>
+<h3>📡 Your Channel Videos (Auto Playlist)</h3>
 
-<ul>
-<li>Upload 2–3 Shorts daily</li>
-<li>First 2 sec = Hook important</li>
-<li>Use trending audio</li>
-<li>Title must be emotional / shocking</li>
-<li>Consistency = growth</li>
-</ul>
+<iframe
+src="https://www.youtube.com/embed/videoseries?list=UUxxxxxxxxxxxx&autoplay=1&loop=1"
+allow="autoplay; encrypted-media"
+allowfullscreen>
+</iframe>
 
 </div>
 
@@ -119,41 +108,59 @@ gap:10px;
 
 <script>
 
-/* SUBSCRIBER COUNTER */
-function updateSubs(){
-let val=document.getElementById("subs").value;
-document.getElementById("subCount").innerText=val;
-}
-
-/* VIRAL IDEAS */
-let ideas=[
-"🔥 5G vs 2G Speed Test Challenge",
-"😱 Mobile vs WiFi Internet Battle",
-"📡 1 Minute Internet Speed Race",
-"⚡ India Fastest Network Test",
-"📺 Live Fake vs Real Speed Test",
-"🚀 Gaming Ping Test Challenge"
+/* SAMPLE VIDEO LIST */
+let videos=[
+"dQw4w9WgXcQ",
+"3JZ_D3ELwOQ",
+"kJQP7kiw5Fk",
+"tgbNymZ7vqY"
 ];
 
-function generateIdea(){
-let i=Math.floor(Math.random()*ideas.length);
-document.getElementById("ideaBox").innerText=ideas[i];
+let index=0;
+
+/* LOAD VIDEO */
+function loadVideo(id){
+document.getElementById("player").src=
+"https://www.youtube.com/embed/"+id+"?autoplay=1";
 }
 
-/* UPLOAD PLANNER */
-function addPlan(){
-let t=document.getElementById("title").value;
+/* NEXT */
+function nextVideo(){
+index++;
+if(index>=videos.length) index=0;
+loadVideo(videos[index]);
+}
 
-if(!t) return;
+/* PREV */
+function prevVideo(){
+index--;
+if(index<0) index=videos.length-1;
+loadVideo(videos[index]);
+}
 
-let div=document.createElement("div");
-div.style.padding="6px";
-div.style.borderBottom="1px solid #222";
-div.innerHTML="📌 "+t;
+/* AUTO PLAY */
+let auto=false;
+let interval;
 
-document.getElementById("planList").appendChild(div);
+function autoPlay(){
 
-document.getElementById("title").value="";
+auto=!auto;
+
+if(auto){
+interval=setInterval(()=>{
+nextVideo();
+},5000);
+}else{
+clearInterval(interval);
+}
+}
+
+/* CUSTOM VIDEO */
+function playCustom(){
+let id=document.getElementById("videoId").value;
+if(id){
+loadVideo(id);
+}
 }
 
 </script>
