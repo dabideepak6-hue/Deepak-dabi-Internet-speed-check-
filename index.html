@@ -70,6 +70,27 @@ iframe {
     border-radius:15px;
 }
 
+/* PLAN SECTION */
+.plan-box {
+    margin:20px auto;
+    width:90%;
+    max-width:400px;
+}
+
+.plan-card {
+    background: linear-gradient(45deg,#ff512f,#dd2476);
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:15px;
+}
+
+.feature-box, .doc-box, .range-box {
+    background: rgba(255,255,255,0.1);
+    padding:15px;
+    border-radius:12px;
+    margin-bottom:10px;
+}
+
 /* LEAD FORM */
 .lead-box {
     background:rgba(255,255,255,0.1);
@@ -95,11 +116,8 @@ button {
     cursor:pointer;
 }
 
-/* WhatsApp Button */
-.wa-btn {
-    background:#25D366;
-    color:white;
-}
+.wa-btn {background:#25D366;color:white;}
+
 </style>
 </head>
 
@@ -126,6 +144,46 @@ button {
 <!-- SPEED -->
 <div class="speed-box">
     <iframe src="https://fast.com"></iframe>
+</div>
+
+<!-- AIRTEL PLAN -->
+<div class="plan-box">
+
+<h2>🔥 Airtel Fiber Plans</h2>
+
+<div class="plan-card">
+<h3>₹499 / month + GST</h3>
+<p>⚡ 40 Mbps Speed</p>
+<p>📶 Unlimited Data</p>
+<p>🎬 22+ OTTs & More</p>
+<p>🎁 Adobe Express + Google One</p>
+<p>🔥 Free Installation</p>
+
+<button onclick="orderNow()">🚀 Book Now</button>
+<p style="color:yellow;">⚡ Limited Offer – Free Installation Today</p>
+</div>
+
+<div class="feature-box">
+<h3>✨ Key Features</h3>
+<p>✔ Free Installation</p>
+<p>✔ Unlimited Data</p>
+<p>✔ Speed: 40 Mbps – 1 Gbps</p>
+<p>✔ OTT: Netflix, Prime, Hotstar*</p>
+<p>✔ Airtel Xstream Play</p>
+</div>
+
+<div class="doc-box">
+<h3>📄 Documents Required</h3>
+<p>Aadhaar Card, PAN Card, Voter ID</p>
+<p>Ration Card, Passport, Driving License</p>
+</div>
+
+<div class="range-box">
+<h3>💰 Plans Available</h3>
+<p>₹499 – ₹799 Basic Plans</p>
+<p>Unlimited Data Included</p>
+</div>
+
 </div>
 
 <!-- LEAD FORM -->
@@ -163,7 +221,13 @@ navigator.geolocation.getCurrentPosition(pos=>{
     });
 });
 
-// SUBMIT LEAD
+// PLAN BUTTON
+function orderNow(){
+    let msg = "Hi, I want Airtel Fiber plan ₹499 / ₹799 details";
+    window.open("https://wa.me/919521393991?text=" + encodeURIComponent(msg));
+}
+
+// LEAD SUBMIT
 function submitLead(){
 
 let name = document.getElementById("name").value;
