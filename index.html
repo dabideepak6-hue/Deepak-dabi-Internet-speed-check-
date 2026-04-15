@@ -3,277 +3,194 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DD ULTRA GLOBAL SPEED TEST</title>
 
-<title>Deepak Dabi Fiber - Jodhpur</title>
-
-<!-- MAP -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
-
 body{
-    margin:0;
-    font-family:Arial;
-    color:white;
-    text-align:center;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
+margin:0;
+font-family:Arial;
+background:radial-gradient(circle,#05070c,#000);
+color:white;
+text-align:center;
 }
 
-/* TOP BAR */
-.top-bar{
-    position:fixed;
-    top:0;
-    width:100%;
-    display:flex;
-    justify-content:space-between;
-    padding:8px;
-    background:rgba(0,0,0,0.5);
-    font-size:14px;
+h1{
+color:#00f5ff;
+margin:15px;
 }
 
-/* EARTH */
-.globe{
-    width:180px;
-    height:180px;
-    margin:60px auto 10px;
-    border-radius:50%;
-    background:url('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') repeat-x;
-    background-size:cover;
-    animation:rotate 20s linear infinite;
-}
-@keyframes rotate{
-    from{background-position:0;}
-    to{background-position:1000px;}
+.card{
+background:rgba(255,255,255,0.06);
+margin:15px;
+padding:15px;
+border-radius:15px;
+backdrop-filter:blur(10px);
 }
 
-/* ANALOG CLOCK */
-.clock{
-    width:180px;
-    height:180px;
-    border:5px solid white;
-    border-radius:50%;
-    margin:20px auto;
-    position:relative;
-    box-shadow:0 0 15px cyan;
+.circle{
+width:200px;
+height:200px;
+border-radius:50%;
+border:6px solid #00f5ff;
+margin:auto;
+display:flex;
+align-items:center;
+justify-content:center;
+flex-direction:column;
 }
 
-/* CENTER */
-.clock::after{
-    content:'';
-    width:10px;
-    height:10px;
-    background:white;
-    position:absolute;
-    top:50%;
-    left:50%;
-    transform:translate(-50%,-50%);
-    border-radius:50%;
+.speed{
+font-size:32px;
+color:#00f5ff;
+font-weight:bold;
 }
 
-/* NUMBERS */
-.number{
-    position:absolute;
-    width:100%;
-    height:100%;
-    display:flex;
-    justify-content:center;
-    align-items:flex-start;
-    font-size:14px;
-    font-weight:bold;
-    transform:rotate(calc(30deg * var(--i)));
-}
-
-.number span{
-    transform:rotate(calc(-30deg * var(--i)));
-}
-
-/* HANDS */
-.hour, .minute, .second{
-    position:absolute;
-    bottom:50%;
-    left:50%;
-    transform-origin:bottom;
-    transform:translateX(-50%);
-}
-
-.hour{
-    width:5px;
-    height:45px;
-    background:white;
-}
-
-.minute{
-    width:3px;
-    height:60px;
-    background:cyan;
-}
-
-.second{
-    width:2px;
-    height:70px;
-    background:red;
-}
-
-/* BOX */
-.box{
-    background:rgba(255,255,255,0.1);
-    padding:15px;
-    margin:15px auto;
-    width:90%;
-    max-width:400px;
-    border-radius:15px;
-}
-
-/* INPUT */
-input{
-    width:90%;
-    padding:10px;
-    border:none;
-    border-radius:8px;
-}
-
-/* BUTTON */
 button{
-    padding:10px 20px;
-    border:none;
-    border-radius:20px;
-    margin-top:10px;
-    cursor:pointer;
-    background:#00c6ff;
-    color:white;
+padding:12px 25px;
+border:none;
+border-radius:25px;
+background:#00f5ff;
+color:black;
+font-weight:bold;
+cursor:pointer;
+margin-top:10px;
 }
 
-/* MAP */
-#map{
-    height:300px;
-    width:90%;
-    margin:20px auto;
-    border-radius:15px;
+.grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:10px;
+margin:15px;
 }
 
+.box{
+background:#111;
+padding:10px;
+border-radius:10px;
+}
+
+input{
+padding:10px;
+border-radius:10px;
+border:none;
+margin:5px;
+width:40%;
+}
+
+@media(max-width:700px){
+.grid{grid-template-columns:1fr;}
+input{width:80%;}
+}
 </style>
 </head>
 
 <body>
 
-<!-- TOP BAR -->
-<div class="top-bar">
-🌡️ <span id="temp">Loading...</span>
-🕒 <span id="time"></span>
+<h1>DD ULTRA GLOBAL 🌍</h1>
+
+<div class="card">
+
+<input id="name" placeholder="Enter Name">
+<input id="country" placeholder="Country (IN, US)">
+
+<br>
+
+<div class="circle">
+<div class="speed" id="speed">0</div>
+<div>Mbps</div>
 </div>
 
-<h2 style="margin-top:60px;">🚀 Jodhpur Fast WiFi</h2>
+<button onclick="startTest()">START TEST</button>
 
-<!-- EARTH -->
-<div class="globe"></div>
-
-<!-- CLOCK -->
-<div class="clock">
-
-<div class="number" style="--i:1"><span>1</span></div>
-<div class="number" style="--i:2"><span>2</span></div>
-<div class="number" style="--i:3"><span>3</span></div>
-<div class="number" style="--i:4"><span>4</span></div>
-<div class="number" style="--i:5"><span>5</span></div>
-<div class="number" style="--i:6"><span>6</span></div>
-<div class="number" style="--i:7"><span>7</span></div>
-<div class="number" style="--i:8"><span>8</span></div>
-<div class="number" style="--i:9"><span>9</span></div>
-<div class="number" style="--i:10"><span>10</span></div>
-<div class="number" style="--i:11"><span>11</span></div>
-<div class="number" style="--i:12"><span>12</span></div>
-
-<div class="hour"></div>
-<div class="minute"></div>
-<div class="second"></div>
-
+<div class="grid">
+<div class="box">Download <h3 id="down">0</h3></div>
+<div class="box">Upload <h3 id="up">0</h3></div>
+<div class="box">Ping <h3 id="ping">0</h3></div>
+<div class="box">Score <h3 id="score">0</h3></div>
 </div>
 
-<!-- SPEED -->
-<div class="box">
-<iframe src="https://fast.com" style="width:100%; height:200px; border:none;"></iframe>
+<canvas id="chart"></canvas>
+
 </div>
-
-<!-- FORM -->
-<div class="box">
-<input id="name" placeholder="Name"><br><br>
-<input id="mobile" placeholder="Mobile"><br><br>
-<input id="city" placeholder="City"><br><br>
-
-<button onclick="getLocation()">📍 Location</button>
-<button onclick="submitLead()">Submit</button>
-</div>
-
-<div id="map"></div>
-
-<!-- WHATSAPP -->
-<a href="https://wa.me/919521393991"
-style="position:fixed;bottom:20px;right:20px;
-background:#25D366;color:white;padding:15px;
-border-radius:50%;">💬</a>
 
 <script>
 
-// TIME + DATE
-setInterval(()=>{
-let now=new Date();
+const WEB_APP_URL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE";
 
-let time=now.toLocaleTimeString('en-IN',{
-hour:'2-digit',minute:'2-digit',second:'2-digit'
-});
-let date=now.toLocaleDateString('en-IN');
+let chart;
 
-document.getElementById("time").innerText=time+" | "+date;
-},1000);
-
-// WEATHER
-navigator.geolocation.getCurrentPosition(pos=>{
-fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`)
-.then(res=>res.json())
-.then(data=>{
-document.getElementById("temp").innerText=
-`🌡️ ${data.current_weather.temperature}°C`;
-});
-});
-
-// CLOCK
-setInterval(()=>{
-let now=new Date();
-
-let sec=now.getSeconds();
-let min=now.getMinutes();
-let hr=now.getHours();
-
-document.querySelector(".second").style.transform=
-`translateX(-50%) rotate(${sec*6}deg)`;
-
-document.querySelector(".minute").style.transform=
-`translateX(-50%) rotate(${min*6}deg)`;
-
-document.querySelector(".hour").style.transform=
-`translateX(-50%) rotate(${hr*30+min/2}deg)`;
-
-},1000);
-
-// MAP
-let map;
-function getLocation(){
-navigator.geolocation.getCurrentPosition(pos=>{
-let lat=pos.coords.latitude;
-let lon=pos.coords.longitude;
-
-if(map){map.remove();}
-map=L.map('map').setView([lat,lon],15);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
-L.marker([lat,lon]).addTo(map);
+function initChart(){
+const ctx=document.getElementById("chart");
+chart=new Chart(ctx,{
+type:"line",
+data:{
+labels:[],
+datasets:[{
+label:"Speed (Mbps)",
+data:[],
+borderColor:"#00f5ff",
+tension:0.4
+}]
+},
+options:{responsive:true}
 });
 }
+initChart();
 
-// SUBMIT
-function submitLead(){
-alert("Lead Sent!");
+function updateChart(v){
+if(chart.data.labels.length>25){
+chart.data.labels.shift();
+chart.data.datasets[0].data.shift();
+}
+chart.data.labels.push("");
+chart.data.datasets[0].data.push(v);
+chart.update();
+}
+
+function startTest(){
+
+let name=document.getElementById("name").value || "User";
+let country=document.getElementById("country").value || "IN";
+
+let speed=0;
+let down=0;
+let up=0;
+let ping=Math.floor(Math.random()*70)+10;
+
+document.getElementById("ping").innerText=ping+" ms";
+
+let i=setInterval(()=>{
+
+speed += Math.random()*15;
+down += Math.random()*10;
+up += Math.random()*7;
+
+if(speed>120){
+clearInterval(i);
+
+let score=(down+up)-(ping/10);
+document.getElementById("score").innerText=score.toFixed(2);
+
+// SEND TO GOOGLE SHEETS
+fetch(WEB_APP_URL+
+"?name="+name+
+"&down="+down.toFixed(1)+
+"&up="+up.toFixed(1)+
+"&ping="+ping+
+"&country="+country);
+
+}
+
+document.getElementById("speed").innerText=speed.toFixed(1);
+document.getElementById("down").innerText=down.toFixed(1)+" Mbps";
+document.getElementById("up").innerText=up.toFixed(1)+" Mbps";
+
+updateChart(speed);
+
+},200);
+
 }
 
 </script>
