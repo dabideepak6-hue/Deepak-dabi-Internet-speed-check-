@@ -1,114 +1,125 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD ULTRA GLOBAL SPEED TEST</title>
+<title>DD Ultra Speed Test</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 body{
 margin:0;
-font-family:Arial;
-background:radial-gradient(circle,#05070c,#000);
+font-family:Poppins;
+background: radial-gradient(circle at top,#0f2027,#090a0f);
 color:white;
 text-align:center;
 }
 
-h1{
-color:#00f5ff;
-margin:15px;
-}
+/* HEADER */
+.logo{font-size:42px;color:#00f5ff;margin-top:20px;font-weight:700;}
+.title{opacity:0.7;margin-bottom:20px}
 
+/* CARD */
 .card{
 background:rgba(255,255,255,0.06);
+backdrop-filter:blur(18px);
 margin:15px;
-padding:15px;
-border-radius:15px;
-backdrop-filter:blur(10px);
+padding:20px;
+border-radius:20px;
+box-shadow:0 0 25px rgba(0,255,255,0.15);
 }
 
+/* SPEED CIRCLE */
 .circle{
-width:200px;
-height:200px;
-border-radius:50%;
-border:6px solid #00f5ff;
+width:260px;height:260px;
 margin:auto;
-display:flex;
-align-items:center;
-justify-content:center;
-flex-direction:column;
+border-radius:50%;
+border:8px solid rgba(255,255,255,0.08);
+position:relative;
+}
+
+.glow{
+position:absolute;
+width:100%;height:100%;
+border-radius:50%;
+border-top:8px solid #00f5ff;
+animation:spin 1.5s linear infinite;
+}
+
+@keyframes spin{100%{transform:rotate(360deg)}}
+
+.center{
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
 }
 
 .speed{
-font-size:32px;
-color:#00f5ff;
-font-weight:bold;
+font-size:28px;font-weight:700;color:#00f5ff;
 }
 
+.small{
+font-size:12px;opacity:0.7;
+}
+
+/* BUTTON */
 button{
 padding:12px 25px;
 border:none;
-border-radius:25px;
+border-radius:30px;
 background:#00f5ff;
-color:black;
-font-weight:bold;
+color:#000;
+font-weight:600;
 cursor:pointer;
-margin-top:10px;
+margin-top:15px;
 }
 
+/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(3,1fr);
 gap:10px;
-margin:15px;
+margin-top:15px;
 }
 
 .box{
-background:#111;
+background:rgba(255,255,255,0.05);
 padding:10px;
-border-radius:10px;
+border-radius:12px;
 }
 
-input{
-padding:10px;
-border-radius:10px;
-border:none;
-margin:5px;
-width:40%;
-}
+canvas{margin-top:15px;}
 
 @media(max-width:700px){
 .grid{grid-template-columns:1fr;}
-input{width:80%;}
+.circle{width:200px;height:200px;}
 }
 </style>
 </head>
 
 <body>
 
-<h1>DD ULTRA GLOBAL 🌍</h1>
+<div class="logo">DD</div>
+<div class="title">Ultra Speed Test Dashboard</div>
 
 <div class="card">
 
-<input id="name" placeholder="Enter Name">
-<input id="country" placeholder="Country (IN, US)">
-
-<br>
-
 <div class="circle">
+<div class="glow"></div>
+<div class="center">
 <div class="speed" id="speed">0</div>
-<div>Mbps</div>
+<div class="small">Mbps</div>
+</div>
 </div>
 
-<button onclick="startTest()">START TEST</button>
+<button onclick="startTest()">Start Test</button>
 
 <div class="grid">
 <div class="box">Download <h3 id="down">0</h3></div>
 <div class="box">Upload <h3 id="up">0</h3></div>
 <div class="box">Ping <h3 id="ping">0</h3></div>
-<div class="box">Score <h3 id="score">0</h3></div>
 </div>
 
 <canvas id="chart"></canvas>
@@ -117,20 +128,17 @@ input{width:80%;}
 
 <script>
 
-const WEB_APP_URL = "PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE";
-
 let chart;
-
 function initChart(){
-const ctx=document.getElementById("chart");
+const ctx=document.getElementById('chart');
 chart=new Chart(ctx,{
-type:"line",
+type:'line',
 data:{
 labels:[],
 datasets:[{
-label:"Speed (Mbps)",
+label:'Speed Mbps',
 data:[],
-borderColor:"#00f5ff",
+borderColor:'#00f5ff',
 tension:0.4
 }]
 },
@@ -139,49 +147,32 @@ options:{responsive:true}
 }
 initChart();
 
-function updateChart(v){
-if(chart.data.labels.length>25){
+function updateChart(val){
+if(chart.data.labels.length>20){
 chart.data.labels.shift();
 chart.data.datasets[0].data.shift();
 }
-chart.data.labels.push("");
-chart.data.datasets[0].data.push(v);
+chart.data.labels.push('');
+chart.data.datasets[0].data.push(val);
 chart.update();
 }
 
 function startTest(){
 
-let name=document.getElementById("name").value || "User";
-let country=document.getElementById("country").value || "IN";
-
 let speed=0;
 let down=0;
 let up=0;
-let ping=Math.floor(Math.random()*70)+10;
+let ping=Math.floor(Math.random()*50)+10;
 
 document.getElementById("ping").innerText=ping+" ms";
 
 let i=setInterval(()=>{
 
-speed += Math.random()*15;
-down += Math.random()*10;
-up += Math.random()*7;
+speed += Math.random()*12;
+down += Math.random()*8;
+up += Math.random()*5;
 
-if(speed>120){
-clearInterval(i);
-
-let score=(down+up)-(ping/10);
-document.getElementById("score").innerText=score.toFixed(2);
-
-// SEND TO GOOGLE SHEETS
-fetch(WEB_APP_URL+
-"?name="+name+
-"&down="+down.toFixed(1)+
-"&up="+up.toFixed(1)+
-"&ping="+ping+
-"&country="+country);
-
-}
+if(speed>120) clearInterval(i);
 
 document.getElementById("speed").innerText=speed.toFixed(1);
 document.getElementById("down").innerText=down.toFixed(1)+" Mbps";
