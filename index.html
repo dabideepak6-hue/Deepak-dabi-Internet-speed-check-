@@ -3,131 +3,134 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>3D Globe Speed Test</title>
-
-<!-- THREE JS -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<title>Deepak Dabi Speed Test</title>
 
 <style>
 body {
     margin: 0;
-    overflow: hidden;
-    font-family: Arial;
-    background: black;
+    font-family: Arial, sans-serif;
+    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     color: white;
     text-align: center;
 }
 
-/* 🌍 CANVAS */
-#globe3d {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+/* 🌍 GLOBE EARTH */
+.globe {
+    width: 220px;
+    height: 220px;
+    margin: 30px auto;
+    border-radius: 50%;
+    overflow: hidden;
+    position: relative;
+
+    background: url('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') repeat-x;
+    background-size: cover;
+
+    animation: globeRotate 20s linear infinite;
+
+    box-shadow: 
+        inset -30px -20px 40px rgba(0,0,0,0.6),
+        0 0 40px cyan;
 }
 
-/* UI */
-.content {
-    position: relative;
-    z-index: 2;
+@keyframes globeRotate {
+    0% { background-position: 0 0; }
+    100% { background-position: 1000px 0; }
+}
+
+/* ✍️ NAME */
+.name {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    
+    font-size: 20px;
+    font-weight: bold;
+
+    text-shadow: 
+        0 0 5px black,
+        0 0 10px cyan,
+        0 0 20px cyan;
+}
+
+/* LIGHT EFFECT */
+.globe::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent);
+}
+
+/* HEADER */
+.header {
+    font-size: 30px;
     margin-top: 20px;
 }
 
-.name {
-    font-size: 26px;
-    font-weight: bold;
-    text-shadow: 0 0 10px cyan;
+/* SPEED BOX */
+.speed-box {
+    width: 90%;
+    max-width: 600px;
+    margin: 20px auto;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(0,0,0,0.6);
 }
 
-.card {
-    background: rgba(255,255,255,0.1);
-    margin: 20px auto;
-    padding: 20px;
-    border-radius: 15px;
-    width: 90%;
-    max-width: 800px;
+.speed-box iframe {
+    width: 100%;
+    height: 350px;
+    border: none;
+}
+
+/* BUTTON */
+.btn {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border-radius: 20px;
+    border: none;
+    background: cyan;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.footer {
+    margin-top: 30px;
+    font-size: 12px;
+    opacity: 0.6;
 }
 </style>
 </head>
 
 <body>
 
-<div id="globe3d"></div>
+<div class="header">🚀 Deepak Dabi Speed Test</div>
 
-<div class="content">
-    <h1>🚀 Speed Test</h1>
-
+<!-- 🌍 EARTH -->
+<div class="globe">
     <div class="name">Deepak Dabi</div>
-    <p>📞 9521393991</p>
+</div>
 
-    <div class="card">
-        <iframe src="https://fast.com" width="100%" height="400"></iframe>
-    </div>
+<p>📞 9521393991</p>
+
+<!-- 📊 SPEED TEST -->
+<div class="speed-box">
+    <iframe id="testFrame" src="https://fast.com"></iframe>
+</div>
+
+<button class="btn" onclick="reloadTest()">🔄 Restart Test</button>
+
+<div class="footer">
+© 2026 Deepak Dabi
 </div>
 
 <script>
-let scene = new THREE.Scene();
-
-let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
-camera.position.z = 5;
-
-let renderer = new THREE.WebGLRenderer({ antialias:true });
-renderer.setSize(window.innerWidth, window.innerHeight);
-document.getElementById("globe3d").appendChild(renderer.domElement);
-
-// LIGHT
-let light = new THREE.PointLight(0xffffff,1.5);
-light.position.set(5,3,5);
-scene.add(light);
-
-// 🌍 EARTH
-let geometry = new THREE.SphereGeometry(2,64,64);
-let texture = new THREE.TextureLoader().load(
-"https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg"
-);
-let material = new THREE.MeshPhongMaterial({ map:texture });
-let earth = new THREE.Mesh(geometry, material);
-scene.add(earth);
-
-// 🛰️ SATELLITE
-let satGeo = new THREE.BoxGeometry(0.2,0.2,0.2);
-let satMat = new THREE.MeshBasicMaterial({color:0x00ffff});
-let sat = new THREE.Mesh(satGeo, satMat);
-scene.add(sat);
-
-// MOUSE CONTROL
-let mouseX = 0;
-let mouseY = 0;
-
-document.addEventListener("mousemove",(e)=>{
-    mouseX = (e.clientX/window.innerWidth - 0.5);
-    mouseY = (e.clientY/window.innerHeight - 0.5);
-});
-
-// ANIMATION
-function animate(){
-    requestAnimationFrame(animate);
-
-    earth.rotation.y += 0.002;
-
-    earth.rotation.y += mouseX * 0.02;
-    earth.rotation.x += mouseY * 0.02;
-
-    let t = Date.now()*0.001;
-    sat.position.x = Math.cos(t)*3;
-    sat.position.z = Math.sin(t)*3;
-
-    renderer.render(scene,camera);
+function reloadTest() {
+    document.getElementById("testFrame").src = "https://fast.com";
 }
-animate();
-
-// RESPONSIVE
-window.addEventListener("resize",()=>{
-    renderer.setSize(window.innerWidth,window.innerHeight);
-    camera.aspect = window.innerWidth/window.innerHeight;
-    camera.updateProjectionMatrix();
-});
 </script>
 
 </body>
