@@ -29,11 +29,7 @@ body {
 .left-info {color:#00ffff;}
 .right-info {color:#fff;}
 
-/* 🌦️ WEATHER ICON */
-.weather-icon {
-    font-size:18px;
-    margin-left:5px;
-}
+.weather-icon {margin-left:5px;}
 
 /* 🌍 GLOBE */
 .globe {
@@ -42,9 +38,15 @@ body {
     margin:70px auto 20px;
     border-radius:50%;
     overflow:hidden;
+    position:relative;
+
     background:url('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') repeat-x;
     background-size:cover;
+
     animation:rotate 20s linear infinite;
+
+    box-shadow: inset -30px -20px 40px rgba(0,0,0,0.6),
+                0 0 40px cyan;
 }
 
 @keyframes rotate {
@@ -52,16 +54,38 @@ body {
     to{background-position:1000px 0;}
 }
 
+/* ✍️ BIG NEON NAME */
 .name {
     position:absolute;
     top:150px;
     left:50%;
     transform:translateX(-50%);
-    font-weight:bold;
-    text-shadow:0 0 10px cyan;
+    
+    font-size:36px;
+    font-weight:900;
+    letter-spacing:2px;
+
+    color:#fff;
+    padding:6px 14px;
+    border-radius:12px;
+    background:rgba(0,0,0,0.4);
+
+    animation:neonGlow 3s linear infinite;
 }
 
-/* 📊 SPEED BOX */
+/* 🌈 7 COLOR NEON */
+@keyframes neonGlow {
+    0%{text-shadow:0 0 5px red,0 0 15px red;}
+    14%{text-shadow:0 0 5px orange,0 0 15px orange;}
+    28%{text-shadow:0 0 5px yellow,0 0 15px yellow;}
+    42%{text-shadow:0 0 5px green,0 0 15px green;}
+    57%{text-shadow:0 0 5px cyan,0 0 15px cyan;}
+    71%{text-shadow:0 0 5px blue,0 0 15px blue;}
+    85%{text-shadow:0 0 5px violet,0 0 15px violet;}
+    100%{text-shadow:0 0 5px red,0 0 15px red;}
+}
+
+/* 📊 SPEED */
 .speed-box {
     width:90%;
     max-width:600px;
@@ -75,37 +99,40 @@ iframe {
     border-radius:15px;
 }
 
+/* 📶 SIGNAL */
+.signal {margin:20px;}
+.bar {
+    display:inline-block;
+    width:8px;
+    margin:2px;
+    background:cyan;
+    animation:signal 1s infinite;
+}
+.bar:nth-child(1){height:10px;}
+.bar:nth-child(2){height:15px;}
+.bar:nth-child(3){height:20px;}
+.bar:nth-child(4){height:25px;}
+
+@keyframes signal {
+    0%{opacity:0.3;}
+    50%{opacity:1;}
+    100%{opacity:0.3;}
+}
+
 /* 📍 MAP */
 .map-box {
     width:90%;
     max-width:600px;
     margin:20px auto;
-    border-radius:15px;
-    overflow:hidden;
+}
+.map-box iframe {
+    height:250px;
 }
 
-/* 📶 SIGNAL */
-.signal {
+/* FOOTER */
+.footer {
     margin:20px;
-}
-
-.bar {
-    display:inline-block;
-    width:8px;
-    height:20px;
-    margin:2px;
-    background:cyan;
-    animation:signal 1s infinite;
-}
-
-.bar:nth-child(2){animation-delay:0.2s;}
-.bar:nth-child(3){animation-delay:0.4s;}
-.bar:nth-child(4){animation-delay:0.6s;}
-
-@keyframes signal {
-    0%{height:10px;}
-    50%{height:30px;}
-    100%{height:10px;}
+    opacity:0.6;
 }
 </style>
 </head>
@@ -125,63 +152,59 @@ iframe {
 
 <h2 style="margin-top:60px;">🚀 Deepak Dabi Speed Test</h2>
 
-<!-- 🌍 -->
+<!-- 🌍 GLOBE -->
 <div class="globe"></div>
 <div class="name">Deepak Dabi</div>
 
 <p>📞 9521393991</p>
 
-<!-- 📊 SPEED -->
+<!-- SPEED -->
 <div class="speed-box">
     <iframe src="https://fast.com"></iframe>
 </div>
 
-<!-- 📶 SIGNAL -->
+<!-- SIGNAL -->
 <div class="signal">
-    📶 Network Signal<br>
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
-    <div class="bar"></div>
+📶 Network Signal<br>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
 </div>
 
-<!-- 📍 MAP -->
+<!-- MAP -->
 <div class="map-box">
-    <iframe id="map" src=""></iframe>
+    <iframe id="map"></iframe>
 </div>
+
+<div class="footer">© 2026 Deepak Dabi</div>
 
 <script>
-// 🕒 TIME
+// TIME
 setInterval(()=>{
     document.getElementById("time").innerText = new Date().toLocaleString();
 },1000);
 
-// 🌡️ TEMP + ICON + MAP
+// GPS + WEATHER + MAP
 navigator.geolocation.getCurrentPosition(pos=>{
     let lat = pos.coords.latitude;
     let lon = pos.coords.longitude;
 
-    // WEATHER
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
     .then(res=>res.json())
     .then(data=>{
         let t = data.current_weather.temperature;
-        document.getElementById("temp").innerText = t + "°C";
+        document.getElementById("temp").innerText = t+"°C";
 
         let code = data.current_weather.weathercode;
-
-        // ICON
-        let icon = "☀️";
+        let icon="☀️";
         if(code>2) icon="☁️";
         if(code>60) icon="🌧️";
-
-        document.getElementById("icon").innerText = icon;
+        document.getElementById("icon").innerText=icon;
     });
 
-    // 📍 MAP
-    document.getElementById("map").src =
+    document.getElementById("map").src=
     `https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed`;
-
 });
 </script>
 
