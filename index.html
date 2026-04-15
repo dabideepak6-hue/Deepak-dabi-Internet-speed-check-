@@ -14,11 +14,34 @@ body {
     text-align: center;
 }
 
-/* 🌍 GLOBE EARTH */
+/* 🔝 TOP BAR */
+.top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 8px 15px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+    z-index: 999;
+}
+
+.left-info {
+    color: #00ffff;
+}
+
+.right-info {
+    color: #ffffff;
+}
+
+/* 🌍 GLOBE */
 .globe {
     width: 220px;
     height: 220px;
-    margin: 30px auto;
+    margin: 70px auto 20px; /* top space for bar */
     border-radius: 50%;
     overflow: hidden;
     position: relative;
@@ -67,10 +90,9 @@ body {
 /* HEADER */
 .header {
     font-size: 30px;
-    margin-top: 20px;
 }
 
-/* SPEED BOX */
+/* 📊 SPEED BOX */
 .speed-box {
     width: 90%;
     max-width: 600px;
@@ -107,6 +129,16 @@ body {
 
 <body>
 
+<!-- 🔝 TOP BAR -->
+<div class="top-bar">
+    <div class="left-info">
+        🌡️ <span id="temp">Loading...</span>
+    </div>
+    <div class="right-info">
+        🕒 <span id="datetime"></span>
+    </div>
+</div>
+
 <div class="header">🚀 Deepak Dabi Speed Test</div>
 
 <!-- 🌍 EARTH -->
@@ -128,9 +160,36 @@ body {
 </div>
 
 <script>
+// 🔄 Reload Speed Test
 function reloadTest() {
     document.getElementById("testFrame").src = "https://fast.com";
 }
+
+// 🕒 Live Time
+function updateTime() {
+    let now = new Date();
+    let date = now.toLocaleDateString();
+    let time = now.toLocaleTimeString();
+    document.getElementById("datetime").innerText = date + " | " + time;
+}
+setInterval(updateTime, 1000);
+updateTime();
+
+// 🌡️ Temperature (GPS)
+navigator.geolocation.getCurrentPosition(position => {
+    let lat = position.coords.latitude;
+    let lon = position.coords.longitude;
+
+    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
+    .then(res => res.json())
+    .then(data => {
+        let temp = data.current_weather.temperature;
+        document.getElementById("temp").innerText = temp + "°C";
+    })
+    .catch(() => {
+        document.getElementById("temp").innerText = "N/A";
+    });
+});
 </script>
 
 </body>
