@@ -3,15 +3,31 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Internet Speed Test</title>
+<title>Airtel Fiber Jodhpur</title>
+
+<!-- LEAFLET MAP -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
+
+/* RAJASTHANI THEME */
 body {
     margin:0;
     font-family: Arial;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     color:white;
     text-align:center;
+    background: linear-gradient(135deg,#ff9933,#ff5e62,#8e0e00);
+}
+
+body::before {
+    content:"";
+    position:fixed;
+    width:100%;
+    height:100%;
+    background:url('https://www.transparenttextures.com/patterns/arabesque.png');
+    opacity:0.2;
+    z-index:-1;
 }
 
 /* TOP BAR */
@@ -24,14 +40,12 @@ body {
     padding:8px 15px;
     background:rgba(0,0,0,0.5);
 }
-.left-info {color:#00ffff;}
-.right-info {color:#fff;}
 
 /* GLOBE */
 .globe {
-    width:200px;
-    height:200px;
-    margin:70px auto 20px;
+    width:180px;
+    height:180px;
+    margin:70px auto 10px;
     border-radius:50%;
     background:url('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') repeat-x;
     background-size:cover;
@@ -42,69 +56,26 @@ body {
     to{background-position:1000px;}
 }
 
-/* NEON NAME */
+/* TEXT */
 .mobile-neon {
-    font-size:34px;
-    font-weight:900;
-    margin-top:10px;
-    animation:neon 3s linear infinite;
+    font-size:30px;
+    font-weight:bold;
+    animation:neon 3s infinite;
 }
 @keyframes neon {
     0%{text-shadow:0 0 10px red;}
-    25%{text-shadow:0 0 10px yellow;}
-    50%{text-shadow:0 0 10px cyan;}
-    75%{text-shadow:0 0 10px blue;}
-    100%{text-shadow:0 0 10px red;}
+    50%{text-shadow:0 0 10px yellow;}
+    100%{text-shadow:0 0 10px cyan;}
 }
 
-/* SPEED */
-.speed-box {
-    width:90%;
-    max-width:600px;
-    margin:20px auto;
-}
-iframe {
-    width:100%;
-    height:300px;
-    border:none;
-    border-radius:15px;
-}
-
-/* PLAN SECTION */
-.plan-box {
-    margin:20px auto;
-    width:90%;
-    max-width:400px;
-}
-
-.plan-card {
-    background: linear-gradient(45deg,#ff512f,#dd2476);
-    padding:20px;
-    border-radius:15px;
-    margin-bottom:15px;
-}
-
-.feature-box, .doc-box, .range-box {
-    background: rgba(255,255,255,0.1);
-    padding:15px;
-    border-radius:12px;
-    margin-bottom:10px;
-}
-
-/* LEAD FORM */
-.lead-box {
+/* BOXES */
+.box {
     background:rgba(255,255,255,0.1);
-    padding:20px;
-    margin:20px auto;
+    padding:15px;
+    margin:15px auto;
     width:90%;
     max-width:400px;
     border-radius:15px;
-}
-.lead-box input {
-    width:90%;
-    padding:10px;
-    border:none;
-    border-radius:8px;
 }
 
 /* BUTTON */
@@ -114,120 +85,134 @@ button {
     border-radius:20px;
     margin-top:10px;
     cursor:pointer;
+    background:linear-gradient(45deg,#00c6ff,#0072ff);
+    color:white;
+    box-shadow:0 0 10px cyan;
 }
 
-.wa-btn {background:#25D366;color:white;}
+/* MAP */
+#map {
+    height:300px;
+    width:90%;
+    margin:20px auto;
+    border-radius:15px;
+}
 
 </style>
 </head>
 
 <body>
 
-<!-- TOP BAR -->
 <div class="top-bar">
-    <div class="left-info">
-        🌡️ <span id="temp">Loading...</span>
-    </div>
-    <div class="right-info">
-        🕒 <span id="time"></span>
-    </div>
+🌡️ <span id="temp">Loading...</span>
+🕒 <span id="time"></span>
 </div>
 
-<h2 style="margin-top:60px;">🚀 Internet Speed Test</h2>
+<h2 style="margin-top:60px;">🚀 Jodhpur Fast WiFi</h2>
 
-<!-- GLOBE -->
 <div class="globe"></div>
 
-<!-- NAME -->
 <div class="mobile-neon">Deepak Dabi</div>
 
 <!-- SPEED -->
-<div class="speed-box">
-    <iframe src="https://fast.com"></iframe>
+<div class="box">
+<iframe src="https://fast.com" style="width:100%; height:250px; border:none;"></iframe>
 </div>
 
-<!-- AIRTEL PLAN -->
-<div class="plan-box">
-
-<h2>🔥 Airtel Fiber Plans</h2>
-
-<div class="plan-card">
-<h3>₹499 / month + GST</h3>
+<!-- PLAN -->
+<div class="box">
+<h3>🔥 Airtel Fiber ₹499 Plan</h3>
 <p>⚡ 40 Mbps Speed</p>
 <p>📶 Unlimited Data</p>
-<p>🎬 22+ OTTs & More</p>
-<p>🎁 Adobe Express + Google One</p>
-<p>🔥 Free Installation</p>
-
+<p>🎬 OTT Apps</p>
 <button onclick="orderNow()">🚀 Book Now</button>
-<p style="color:yellow;">⚡ Limited Offer – Free Installation Today</p>
 </div>
 
-<div class="feature-box">
-<h3>✨ Key Features</h3>
-<p>✔ Free Installation</p>
-<p>✔ Unlimited Data</p>
-<p>✔ Speed: 40 Mbps – 1 Gbps</p>
-<p>✔ OTT: Netflix, Prime, Hotstar*</p>
-<p>✔ Airtel Xstream Play</p>
+<!-- FORM -->
+<div class="box">
+<h3>📡 New Connection</h3>
+
+<input id="name" placeholder="Name"><br><br>
+<input id="mobile" placeholder="Mobile"><br><br>
+<input id="city" placeholder="City"><br><br>
+
+<button onclick="getLocation()">📍 Use My Location</button><br>
+<p id="locationText"></p>
+
+<button onclick="submitLead()">Submit</button>
 </div>
 
-<div class="doc-box">
-<h3>📄 Documents Required</h3>
-<p>Aadhaar Card, PAN Card, Voter ID</p>
-<p>Ration Card, Passport, Driving License</p>
-</div>
+<!-- FEASIBILITY -->
+<div id="feasibilityBox"></div>
 
-<div class="range-box">
-<h3>💰 Plans Available</h3>
-<p>₹499 – ₹799 Basic Plans</p>
-<p>Unlimited Data Included</p>
-</div>
-
-</div>
-
-<!-- LEAD FORM -->
-<div class="lead-box">
-<h3>⚡ Jodhpur में Slow Internet? Get New Connection</h3>
-
-<input type="text" id="name" placeholder="Your Name"><br><br>
-<input type="tel" id="mobile" placeholder="Mobile Number"><br><br>
-<input type="text" id="city" placeholder="Your City"><br><br>
-
-<button onclick="submitLead()">Submit</button><br>
-
-<a href="https://wa.me/919521393991?text=Hi%20I%20need%20new%20WiFi%20connection" target="_blank">
-<button class="wa-btn">💬 WhatsApp Me</button>
-</a>
-</div>
+<!-- MAP -->
+<div id="map"></div>
+<p id="mapStatus"></p>
 
 <script>
 
 // TIME
 setInterval(()=>{
-    document.getElementById("time").innerText = new Date().toLocaleString();
+document.getElementById("time").innerText = new Date().toLocaleTimeString();
 },1000);
 
 // WEATHER
 navigator.geolocation.getCurrentPosition(pos=>{
-    let lat = pos.coords.latitude;
-    let lon = pos.coords.longitude;
-
-    fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
-    .then(res=>res.json())
-    .then(data=>{
-        document.getElementById("temp").innerText =
-        data.current_weather.temperature + "°C";
-    });
+fetch(`https://api.open-meteo.com/v1/forecast?latitude=${pos.coords.latitude}&longitude=${pos.coords.longitude}&current_weather=true`)
+.then(res=>res.json())
+.then(data=>{
+document.getElementById("temp").innerText = data.current_weather.temperature+"°C";
+});
 });
 
-// PLAN BUTTON
-function orderNow(){
-    let msg = "Hi, I want Airtel Fiber plan ₹499 / ₹799 details";
-    window.open("https://wa.me/919521393991?text=" + encodeURIComponent(msg));
+// MAP
+let map;
+function loadMap(lat, lon){
+if(map){ map.remove(); }
+map = L.map('map').setView([lat, lon], 15);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+L.marker([lat, lon]).addTo(map).bindPopup("📍 Your Location").openPopup();
 }
 
-// LEAD SUBMIT
+// LOCATION
+function getLocation(){
+navigator.geolocation.getCurrentPosition(async (pos)=>{
+
+let lat = pos.coords.latitude;
+let lon = pos.coords.longitude;
+
+loadMap(lat, lon);
+
+let res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`);
+let data = await res.json();
+
+let city = data.address.city || data.address.town || data.address.village || "";
+
+document.getElementById("city").value = city;
+document.getElementById("locationText").innerText = "📍 " + city;
+
+checkFeasibility(city);
+
+});
+}
+
+// FEASIBILITY
+function checkFeasibility(city){
+
+let cities = ["Jodhpur","Jaipur","Udaipur","Kota","Ajmer","Bikaner"];
+
+let box = document.getElementById("feasibilityBox");
+
+if(cities.includes(city)){
+box.innerHTML = "✅ Airtel Fiber Available in " + city;
+box.style.color="lightgreen";
+}else{
+box.innerHTML = "⚠️ Checking availability...";
+box.style.color="orange";
+}
+}
+
+// SUBMIT
 function submitLead(){
 
 let name = document.getElementById("name").value;
@@ -235,26 +220,34 @@ let mobile = document.getElementById("mobile").value;
 let city = document.getElementById("city").value;
 
 if(name=="" || mobile==""){
-    alert("Fill details");
-    return;
+alert("Fill details");
+return;
 }
 
-// GOOGLE SHEET SAVE
-fetch("YOUR_SCRIPT_URL_HERE", {
-    method:"POST",
-    body: JSON.stringify({
-        name:name,
-        mobile:mobile,
-        city:city
-    })
-});
+if(!/^[6-9]\d{9}$/.test(mobile)){
+alert("Invalid mobile");
+return;
+}
 
-// WHATSAPP AUTO
-let msg = `New Lead:%0AName: ${name}%0AMobile: ${mobile}%0ACity: ${city}`;
+navigator.geolocation.getCurrentPosition(pos=>{
+
+let lat = pos.coords.latitude;
+let lon = pos.coords.longitude;
+
+let msg = `New Lead:%0AName: ${name}%0AMobile: ${mobile}%0ACity: ${city}%0ALocation: https://maps.google.com/?q=${lat},${lon}`;
+
 window.open(`https://wa.me/919521393991?text=${msg}`);
 
-alert("Submitted Successfully!");
+});
+
+alert("Submitted!");
 }
+
+// PLAN BUTTON
+function orderNow(){
+window.open("https://wa.me/919521393991?text=Hi I want Airtel Fiber");
+}
+
 </script>
 
 </body>
