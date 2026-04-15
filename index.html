@@ -6,16 +6,29 @@
 <title>Deepak Dabi Speed Test</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
 <style>
 body {
     margin: 0;
     font-family: 'Poppins', sans-serif;
-    background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
     color: white;
     text-align: center;
+    overflow-x: hidden;
+    background: black;
 }
 
+/* 🌍 3D BACKGROUND */
+#globe3d {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+}
+
+/* UI */
 .header {
     padding: 25px;
     font-size: 34px;
@@ -65,14 +78,17 @@ img:hover {
     opacity: 0.6;
 }
 </style>
-
 </head>
+
 <body>
+
+<!-- 🌍 3D Globe -->
+<div id="globe3d"></div>
 
 <div class="header">🚀 Deepak Dabi Speed Test</div>
 <div class="sub">Check your internet speed instantly ⚡</div>
 
-<!-- 🔥 PHOTO + LIVE -->
+<!-- PHOTO -->
 <div style="margin-top:20px; position:relative; display:inline-block;">
     
     <img src="deepak.jpg" alt="Deepak Dabi"
@@ -81,7 +97,6 @@ img:hover {
     box-shadow:0 0 20px #00c6ff;
     object-fit:cover;">
 
-    <!-- LIVE BADGE -->
     <div style="
         position:absolute;
         bottom:5px;
@@ -110,7 +125,6 @@ img:hover {
     <div style="position:relative;">
         <iframe id="testFrame" src="https://fast.com" width="100%" height="420"></iframe>
 
-        <!-- WATERMARK -->
         <div style="
             position:absolute;
             bottom:10px;
@@ -143,15 +157,77 @@ img:hover {
 </div>
 
 <script>
+// Buttons
 function reloadTest() {
     document.getElementById("testFrame").src = "https://fast.com";
 }
 
 function shareWhatsApp() {
-    let text = "🔥 Check your internet speed now!\n🚀 Try here: " + window.location.href + "\n📶 Powered by Deepak Dabi";
-    let url = "https://wa.me/?text=" + encodeURIComponent(text);
-    window.open(url, '_blank');
+    let text = "🔥 Check your internet speed now!\n🚀 Try here: " + window.location.href;
+    window.open("https://wa.me/?text=" + encodeURIComponent(text));
 }
+
+// 🌍 THREE JS
+let scene = new THREE.Scene();
+let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 1000);
+
+let renderer = new THREE.WebGLRenderer({ alpha: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.getElementById('globe3d').appendChild(renderer.domElement);
+
+// Globe
+let geometry = new THREE.SphereGeometry(2, 64, 64);
+let texture = new THREE.TextureLoader().load('https://threejs.org/examples/textures/earth_atmos_2048.jpg');
+let material = new THREE.MeshBasicMaterial({ map: texture });
+let globe = new THREE.Mesh(geometry, material);
+scene.add(globe);
+
+// Satellite
+let satGeometry = new THREE.BoxGeometry(0.2,0.2,0.2);
+let satMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff });
+let satellite = new THREE.Mesh(satGeometry, satMaterial);
+scene.add(satellite);
+
+// Signal Ring
+let ringGeometry = new THREE.RingGeometry(2.2,2.3,64);
+let ringMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffff, side: THREE.DoubleSide });
+let ring = new THREE.Mesh(ringGeometry, ringMaterial);
+ring.rotation.x = Math.PI/2;
+scene.add(ring);
+
+camera.position.z = 5;
+
+// Mouse move
+document.addEventListener('mousemove', (e) => {
+    let x = (e.clientX/window.innerWidth - 0.5)*2;
+    let y = (e.clientY/window.innerHeight - 0.5)*2;
+    globe.rotation.y = x;
+    globe.rotation.x = y;
+});
+
+// Animation
+function animate() {
+    requestAnimationFrame(animate);
+
+    globe.rotation.y += 0.002;
+
+    let t = Date.now()*0.001;
+    satellite.position.x = Math.cos(t)*3;
+    satellite.position.z = Math.sin(t)*3;
+
+    ring.scale.x = 1 + Math.sin(t)*0.2;
+    ring.scale.y = 1 + Math.sin(t)*0.2;
+
+    renderer.render(scene, camera);
+}
+animate();
+
+// Responsive
+window.addEventListener('resize', () => {
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    camera.aspect = window.innerWidth/window.innerHeight;
+    camera.updateProjectionMatrix();
+});
 </script>
 
 </body>
