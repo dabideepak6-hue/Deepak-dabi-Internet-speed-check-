@@ -7,188 +7,181 @@
 
 <style>
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
+    margin:0;
+    font-family: Arial;
     background: linear-gradient(135deg,#0f2027,#203a43,#2c5364);
-    color: white;
-    text-align: center;
+    color:white;
+    text-align:center;
 }
 
 /* 🔝 TOP BAR */
 .top-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    padding: 8px 15px;
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    background: rgba(0,0,0,0.5);
-    backdrop-filter: blur(5px);
-    z-index: 999;
+    position:fixed;
+    top:0;
+    width:100%;
+    display:flex;
+    justify-content:space-between;
+    padding:8px 15px;
+    background:rgba(0,0,0,0.5);
+    z-index:999;
 }
 
-.left-info {
-    color: #00ffff;
-}
+.left-info {color:#00ffff;}
+.right-info {color:#fff;}
 
-.right-info {
-    color: #ffffff;
+/* 🌦️ WEATHER ICON */
+.weather-icon {
+    font-size:18px;
+    margin-left:5px;
 }
 
 /* 🌍 GLOBE */
 .globe {
-    width: 220px;
-    height: 220px;
-    margin: 70px auto 20px; /* top space for bar */
-    border-radius: 50%;
-    overflow: hidden;
-    position: relative;
-
-    background: url('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') repeat-x;
-    background-size: cover;
-
-    animation: globeRotate 20s linear infinite;
-
-    box-shadow: 
-        inset -30px -20px 40px rgba(0,0,0,0.6),
-        0 0 40px cyan;
+    width:200px;
+    height:200px;
+    margin:70px auto 20px;
+    border-radius:50%;
+    overflow:hidden;
+    background:url('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg') repeat-x;
+    background-size:cover;
+    animation:rotate 20s linear infinite;
 }
 
-@keyframes globeRotate {
-    0% { background-position: 0 0; }
-    100% { background-position: 1000px 0; }
+@keyframes rotate {
+    from{background-position:0 0;}
+    to{background-position:1000px 0;}
 }
 
-/* ✍️ NAME */
 .name {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    
-    font-size: 20px;
-    font-weight: bold;
-
-    text-shadow: 
-        0 0 5px black,
-        0 0 10px cyan,
-        0 0 20px cyan;
-}
-
-/* LIGHT EFFECT */
-.globe::after {
-    content: '';
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.3), transparent);
-}
-
-/* HEADER */
-.header {
-    font-size: 30px;
+    position:absolute;
+    top:150px;
+    left:50%;
+    transform:translateX(-50%);
+    font-weight:bold;
+    text-shadow:0 0 10px cyan;
 }
 
 /* 📊 SPEED BOX */
 .speed-box {
-    width: 90%;
-    max-width: 600px;
-    margin: 20px auto;
-    border-radius: 20px;
-    overflow: hidden;
-    box-shadow: 0 0 25px rgba(0,0,0,0.6);
+    width:90%;
+    max-width:600px;
+    margin:20px auto;
 }
 
-.speed-box iframe {
-    width: 100%;
-    height: 350px;
-    border: none;
+iframe {
+    width:100%;
+    height:300px;
+    border:none;
+    border-radius:15px;
 }
 
-/* BUTTON */
-.btn {
-    margin-top: 15px;
-    padding: 10px 20px;
-    border-radius: 20px;
-    border: none;
-    background: cyan;
-    cursor: pointer;
-    font-weight: bold;
+/* 📍 MAP */
+.map-box {
+    width:90%;
+    max-width:600px;
+    margin:20px auto;
+    border-radius:15px;
+    overflow:hidden;
 }
 
-.footer {
-    margin-top: 30px;
-    font-size: 12px;
-    opacity: 0.6;
+/* 📶 SIGNAL */
+.signal {
+    margin:20px;
+}
+
+.bar {
+    display:inline-block;
+    width:8px;
+    height:20px;
+    margin:2px;
+    background:cyan;
+    animation:signal 1s infinite;
+}
+
+.bar:nth-child(2){animation-delay:0.2s;}
+.bar:nth-child(3){animation-delay:0.4s;}
+.bar:nth-child(4){animation-delay:0.6s;}
+
+@keyframes signal {
+    0%{height:10px;}
+    50%{height:30px;}
+    100%{height:10px;}
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔝 TOP BAR -->
+<!-- TOP BAR -->
 <div class="top-bar">
     <div class="left-info">
         🌡️ <span id="temp">Loading...</span>
+        <span class="weather-icon" id="icon"></span>
     </div>
     <div class="right-info">
-        🕒 <span id="datetime"></span>
+        🕒 <span id="time"></span>
     </div>
 </div>
 
-<div class="header">🚀 Deepak Dabi Speed Test</div>
+<h2 style="margin-top:60px;">🚀 Deepak Dabi Speed Test</h2>
 
-<!-- 🌍 EARTH -->
-<div class="globe">
-    <div class="name">Deepak Dabi</div>
-</div>
+<!-- 🌍 -->
+<div class="globe"></div>
+<div class="name">Deepak Dabi</div>
 
 <p>📞 9521393991</p>
 
-<!-- 📊 SPEED TEST -->
+<!-- 📊 SPEED -->
 <div class="speed-box">
-    <iframe id="testFrame" src="https://fast.com"></iframe>
+    <iframe src="https://fast.com"></iframe>
 </div>
 
-<button class="btn" onclick="reloadTest()">🔄 Restart Test</button>
+<!-- 📶 SIGNAL -->
+<div class="signal">
+    📶 Network Signal<br>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+    <div class="bar"></div>
+</div>
 
-<div class="footer">
-© 2026 Deepak Dabi
+<!-- 📍 MAP -->
+<div class="map-box">
+    <iframe id="map" src=""></iframe>
 </div>
 
 <script>
-// 🔄 Reload Speed Test
-function reloadTest() {
-    document.getElementById("testFrame").src = "https://fast.com";
-}
+// 🕒 TIME
+setInterval(()=>{
+    document.getElementById("time").innerText = new Date().toLocaleString();
+},1000);
 
-// 🕒 Live Time
-function updateTime() {
-    let now = new Date();
-    let date = now.toLocaleDateString();
-    let time = now.toLocaleTimeString();
-    document.getElementById("datetime").innerText = date + " | " + time;
-}
-setInterval(updateTime, 1000);
-updateTime();
+// 🌡️ TEMP + ICON + MAP
+navigator.geolocation.getCurrentPosition(pos=>{
+    let lat = pos.coords.latitude;
+    let lon = pos.coords.longitude;
 
-// 🌡️ Temperature (GPS)
-navigator.geolocation.getCurrentPosition(position => {
-    let lat = position.coords.latitude;
-    let lon = position.coords.longitude;
-
+    // WEATHER
     fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`)
-    .then(res => res.json())
-    .then(data => {
-        let temp = data.current_weather.temperature;
-        document.getElementById("temp").innerText = temp + "°C";
-    })
-    .catch(() => {
-        document.getElementById("temp").innerText = "N/A";
+    .then(res=>res.json())
+    .then(data=>{
+        let t = data.current_weather.temperature;
+        document.getElementById("temp").innerText = t + "°C";
+
+        let code = data.current_weather.weathercode;
+
+        // ICON
+        let icon = "☀️";
+        if(code>2) icon="☁️";
+        if(code>60) icon="🌧️";
+
+        document.getElementById("icon").innerText = icon;
     });
+
+    // 📍 MAP
+    document.getElementById("map").src =
+    `https://maps.google.com/maps?q=${lat},${lon}&z=15&output=embed`;
+
 });
 </script>
 
