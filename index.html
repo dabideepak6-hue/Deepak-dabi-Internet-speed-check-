@@ -3,254 +3,248 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Ultra AI Clock</title>
+<title>DD Ultra All-in-One System</title>
 
 <style>
 body{
 margin:0;
-background:#0b0f14;
+background:#000;
 color:white;
 font-family:Arial;
 text-align:center;
-padding:20px;
 }
 
 /* CLOCK */
 .clock{
-width:260px;height:260px;
+width:240px;height:240px;
 border-radius:50%;
 margin:20px auto;
 position:relative;
-background:radial-gradient(circle,#111 60%,#000);
-border:4px solid #00c6ff;
-box-shadow:0 0 25px #00c6ff;
+background:#111;
+border:4px solid cyan;
 }
 
 .number{
 position:absolute;
-color:#00c6ff;
-font-weight:bold;
+color:cyan;
 transform:translate(-50%,-50%);
 }
 
 .hand{
 position:absolute;
-top:50%;
-left:50%;
+top:50%;left:50%;
 transform-origin:50% 100%;
-transform:translate(-50%,-100%) rotate(90deg);
+transform:translate(-50%,-100%);
 }
 
-.hour{width:6px;height:70px;background:white;}
-.minute{width:4px;height:90px;background:#00c6ff;}
-.second{width:2px;height:100px;background:red;}
+.hour{width:5px;height:60px;background:white;}
+.minute{width:3px;height:80px;background:cyan;}
+.second{width:2px;height:90px;background:red;}
 
 .center{
-width:10px;height:10px;
-background:#00c6ff;
+width:8px;height:8px;
+background:cyan;
 border-radius:50%;
 position:absolute;
 top:50%;left:50%;
 transform:translate(-50%,-50%);
 }
 
-/* TEXT */
-.digital{font-size:22px;color:#00c6ff;}
-.day{
-font-size:20px;
-color:#00ffcc;
-font-weight:bold;
-}
-.date{font-size:16px;}
+.digital{color:cyan;}
+.day{color:#00ffcc;font-weight:bold;}
+.date{font-size:14px;}
 
 /* CARD */
 .card{
 background:#111;
-padding:20px;
-border-radius:15px;
-max-width:350px;
-margin:20px auto;
+margin:15px;
+padding:15px;
+border-radius:10px;
 }
 
+/* INPUT */
 input,select{
 padding:10px;
-margin:10px;
+margin:5px;
 width:90%;
-border-radius:10px;
 border:none;
+border-radius:8px;
 }
 
 button{
-padding:12px;
+padding:10px;
+margin:5px;
 border:none;
-border-radius:10px;
-background:#00c6ff;
-cursor:pointer;
+border-radius:8px;
+background:orange;
+color:black;
 font-weight:bold;
 }
 
-.result{
-color:#00c6ff;
-font-size:18px;
+/* PLAYER */
+iframe{
+width:100%;
+height:200px;
+border:none;
+}
+
+/* VISUALIZER */
+.visualizer{
+display:flex;
+justify-content:center;
+gap:4px;
+height:60px;
+}
+
+.bar{
+width:5px;
+background:lime;
+animation:beat 1s infinite;
+}
+
+@keyframes beat{
+0%,100%{height:10px;}
+50%{height:50px;}
 }
 </style>
 </head>
 
 <body>
 
-<h2>🤖 DD Ultra AI Clock System</h2>
+<h2>🚀 DD Ultra System</h2>
 
 <!-- CLOCK -->
 <div class="clock" id="clock"></div>
-
 <div class="digital" id="digital"></div>
 <div class="day" id="day"></div>
 <div class="date" id="date"></div>
 
 <!-- MESSAGE -->
 <div class="card">
-
-<input id="name" placeholder="Enter Name" oninput="detectAI()">
+<input id="name" placeholder="Name" oninput="detectAI()">
 <input id="number" placeholder="Mobile Number">
 
-<div class="result" id="aiResult">AI: Waiting...</div>
+<div id="aiResult">AI: Waiting...</div>
 
 <select id="manual">
-<option value="auto">Auto Detect</option>
-<option value="Mr.">Force Mr.</option>
-<option value="Mrs.">Force Mrs.</option>
+<option value="auto">Auto</option>
+<option value="Mr.">Mr.</option>
+<option value="Mrs.">Mrs.</option>
 </select>
 
-<button onclick="sendMsg()">Send Message</button>
+<button onclick="sendMsg()">Send WhatsApp</button>
+</div>
 
+<!-- MUSIC -->
+<div class="card">
+<h3>🎧 Rajasthani DJ</h3>
+<div id="songName"></div>
+
+<iframe id="player"></iframe>
+
+<button onclick="prev()">⏮</button>
+<button onclick="next()">⏭</button>
+
+<div class="visualizer">
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+<div class="bar"></div>
+</div>
 </div>
 
 <script>
 
-/* CLOCK CREATE */
-const clock = document.getElementById("clock");
-
+/* CLOCK */
+const clock=document.getElementById("clock");
 for(let i=1;i<=12;i++){
-let angle=(i*30-90)*Math.PI/180;
-let x=50+40*Math.cos(angle);
-let y=50+40*Math.sin(angle);
-
-let num=document.createElement("div");
-num.className="number";
-num.style.left=x+"%";
-num.style.top=y+"%";
-num.innerText=i;
-
-clock.appendChild(num);
+let a=(i*30-90)*Math.PI/180;
+let x=50+40*Math.cos(a);
+let y=50+40*Math.sin(a);
+let n=document.createElement("div");
+n.className="number";
+n.style.left=x+"%";
+n.style.top=y+"%";
+n.innerText=i;
+clock.appendChild(n);
 }
-
-clock.innerHTML += `
-<div class="hand hour" id="hour"></div>
-<div class="hand minute" id="minute"></div>
-<div class="hand second" id="second"></div>
+clock.innerHTML+=`
+<div class="hand hour" id="h"></div>
+<div class="hand minute" id="m"></div>
+<div class="hand second" id="s"></div>
 <div class="center"></div>
 `;
 
-/* CLOCK FUNCTION */
 function updateClock(){
+let d=new Date();
+let sec=d.getSeconds();
+let min=d.getMinutes();
+let hr=d.getHours();
 
-let now=new Date();
+h.style.transform=`translate(-50%,-100%) rotate(${hr*30+min*0.5}deg)`;
+m.style.transform=`translate(-50%,-100%) rotate(${min*6}deg)`;
+s.style.transform=`translate(-50%,-100%) rotate(${sec*6}deg)`;
 
-let sec=now.getSeconds();
-let min=now.getMinutes();
-let hr=now.getHours();
-
-/* HANDS */
-document.getElementById("second").style.transform =
-`translate(-50%,-100%) rotate(${sec*6}deg)`;
-
-document.getElementById("minute").style.transform =
-`translate(-50%,-100%) rotate(${min*6+sec*0.1}deg)`;
-
-document.getElementById("hour").style.transform =
-`translate(-50%,-100%) rotate(${(hr%12)*30+min*0.5}deg)`;
-
-/* DIGITAL */
-document.getElementById("digital").innerText =
-now.toLocaleTimeString("en-IN");
-
-/* DAY */
-document.getElementById("day").innerText =
-now.toLocaleDateString("en-IN",{weekday:'long'});
-
-/* DATE */
-document.getElementById("date").innerText =
-now.toLocaleDateString("hi-IN",{day:'numeric',month:'long',year:'numeric'});
+digital.innerText=d.toLocaleTimeString("en-IN");
+day.innerText=d.toLocaleDateString("en-IN",{weekday:'long'});
+date.innerText=d.toLocaleDateString("hi-IN");
 }
-
 setInterval(updateClock,1000);
-updateClock();
 
-/* AI DATA */
-let femaleList = ["pooja","sunita","neha","rekha","kavita","priya","anjali","komal","nisha"];
-let maleList = ["deepak","jitendra","ramesh","rahul","amit","rohit"];
+/* AI */
+let female=["pooja","neha","priya","anjali","komal"];
+let male=["deepak","rahul","amit","rohit"];
 
-let detectedPrefix="Mr.";
-let confidence=50;
+let prefix="Mr.";
 
-/* AI DETECT */
 function detectAI(){
+let n=name.value.toLowerCase();
+if(female.some(f=>n.includes(f))) prefix="Mrs.";
+else if(male.some(m=>n.includes(m))) prefix="Mr.";
+else prefix=n.endsWith("a")?"Mrs.":"Mr.";
 
-let name=document.getElementById("name").value.toLowerCase();
-
-if(!name){
-document.getElementById("aiResult").innerText="AI: Waiting...";
-return;
-}
-
-if(femaleList.some(n=>name.includes(n))){
-detectedPrefix="Mrs."; confidence=95;
-}
-else if(maleList.some(n=>name.includes(n))){
-detectedPrefix="Mr."; confidence=95;
-}
-else{
-if(name.endsWith("a") || name.endsWith("i")){
-detectedPrefix="Mrs."; confidence=75;
-}else{
-detectedPrefix="Mr."; confidence=70;
-}
-}
-
-document.getElementById("aiResult").innerText =
-`AI: ${detectedPrefix} (${confidence}%)`;
-
+aiResult.innerText="AI: "+prefix;
 }
 
 /* MESSAGE */
 function sendMsg(){
+let num=number.value;
+if(!num.startsWith("91")) num="91"+num;
 
-let name=document.getElementById("name").value.trim();
-let number=document.getElementById("number").value.trim();
-let manual=document.getElementById("manual").value;
+let p=manual.value==="auto"?prefix:manual.value;
 
-if(!number.startsWith("91")) number="91"+number;
+let msg=`Dear ${p} ${name.value} Ji,
 
-let prefix = manual==="auto"?detectedPrefix:manual;
+मैं Deepak Dabi, Airtel AirFiber Recovery Advisor हूँ।
+आपका device collect करना है।
 
-let msg =
-`Dear ${prefix} ${name} Ji,
+धन्यवाद
+📞 9521393991`;
 
-मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
-आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।
-
-कृपया device ready रखें 🙏
-Kindly share your current location for smooth coordination.
-
-Device return न करने की स्थिति में Airtel द्वारा penalty charges लग सकते हैं।
-
-धन्यवाद,
-Deepak Dabi
-📞 9521393991
-Airtel AirFiber Recovery Advisor`;
-
-window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`);
+window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`);
 }
+
+/* MUSIC */
+let songs=[
+{ id:"1sYd7H9hQn0", name:"Le Photo Le" },
+{ id:"9x9XG7z5r7U", name:"DJ Remix" },
+{ id:"3JZ_D3ELwOQ", name:"Party Anthem" }
+];
+
+let i=0;
+
+function play(){
+player.src="https://www.youtube.com/embed/"+songs[i].id+"?autoplay=1";
+songName.innerText=songs[i].name;
+}
+
+function next(){i=(i+1)%songs.length;play();}
+function prev(){i=(i-1+songs.length)%songs.length;play();}
+
+setInterval(next,30000);
+
+play();
 
 </script>
 
