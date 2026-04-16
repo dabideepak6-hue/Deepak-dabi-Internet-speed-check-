@@ -3,44 +3,33 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Ultra All-in-One System</title>
+<title>DD Final Working System</title>
 
 <style>
-body{
-margin:0;
-background:#000;
-color:white;
-font-family:Arial;
-text-align:center;
-}
+body{margin:0;background:#000;color:white;font-family:Arial;text-align:center}
 
 /* CLOCK */
 .clock{
-width:240px;height:240px;
+width:220px;height:220px;
 border-radius:50%;
 margin:20px auto;
+border:3px solid cyan;
 position:relative;
-background:#111;
-border:4px solid cyan;
 }
-
 .number{
 position:absolute;
 color:cyan;
 transform:translate(-50%,-50%);
 }
-
 .hand{
 position:absolute;
 top:50%;left:50%;
 transform-origin:50% 100%;
 transform:translate(-50%,-100%);
 }
-
 .hour{width:5px;height:60px;background:white;}
 .minute{width:3px;height:80px;background:cyan;}
 .second{width:2px;height:90px;background:red;}
-
 .center{
 width:8px;height:8px;
 background:cyan;
@@ -50,6 +39,7 @@ top:50%;left:50%;
 transform:translate(-50%,-50%);
 }
 
+/* TEXT */
 .digital{color:cyan;}
 .day{color:#00ffcc;font-weight:bold;}
 .date{font-size:14px;}
@@ -79,6 +69,7 @@ border-radius:8px;
 background:orange;
 color:black;
 font-weight:bold;
+cursor:pointer;
 }
 
 /* PLAYER */
@@ -87,31 +78,12 @@ width:100%;
 height:200px;
 border:none;
 }
-
-/* VISUALIZER */
-.visualizer{
-display:flex;
-justify-content:center;
-gap:4px;
-height:60px;
-}
-
-.bar{
-width:5px;
-background:lime;
-animation:beat 1s infinite;
-}
-
-@keyframes beat{
-0%,100%{height:10px;}
-50%{height:50px;}
-}
 </style>
 </head>
 
 <body>
 
-<h2>🚀 DD Ultra System</h2>
+<h2>🚀 DD Final System</h2>
 
 <!-- CLOCK -->
 <div class="clock" id="clock"></div>
@@ -121,7 +93,7 @@ animation:beat 1s infinite;
 
 <!-- MESSAGE -->
 <div class="card">
-<input id="name" placeholder="Name" oninput="detectAI()">
+<input id="name" placeholder="Enter Name">
 <input id="number" placeholder="Mobile Number">
 
 <div id="aiResult">AI: Waiting...</div>
@@ -135,40 +107,40 @@ animation:beat 1s infinite;
 <button onclick="sendMsg()">Send WhatsApp</button>
 </div>
 
-<!-- MUSIC -->
+<!-- YOUTUBE -->
 <div class="card">
-<h3>🎧 Rajasthani DJ</h3>
-<div id="songName"></div>
+<h3>🎧 DJ Player</h3>
 
-<iframe id="player"></iframe>
+<iframe id="player"
+src="https://www.youtube.com/embed/1sYd7H9hQn0"
+allowfullscreen>
+</iframe>
 
-<button onclick="prev()">⏮</button>
-<button onclick="next()">⏭</button>
+<br>
+<button onclick="playVideo()">▶ Play</button>
+<button onclick="nextVideo()">⏭ Next</button>
 
-<div class="visualizer">
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-<div class="bar"></div>
-</div>
 </div>
 
 <script>
 
 /* CLOCK */
 const clock=document.getElementById("clock");
+
 for(let i=1;i<=12;i++){
 let a=(i*30-90)*Math.PI/180;
 let x=50+40*Math.cos(a);
 let y=50+40*Math.sin(a);
+
 let n=document.createElement("div");
 n.className="number";
 n.style.left=x+"%";
 n.style.top=y+"%";
 n.innerText=i;
+
 clock.appendChild(n);
 }
+
 clock.innerHTML+=`
 <div class="hand hour" id="h"></div>
 <div class="hand minute" id="m"></div>
@@ -178,73 +150,101 @@ clock.innerHTML+=`
 
 function updateClock(){
 let d=new Date();
-let sec=d.getSeconds();
-let min=d.getMinutes();
-let hr=d.getHours();
 
-h.style.transform=`translate(-50%,-100%) rotate(${hr*30+min*0.5}deg)`;
-m.style.transform=`translate(-50%,-100%) rotate(${min*6}deg)`;
-s.style.transform=`translate(-50%,-100%) rotate(${sec*6}deg)`;
+document.getElementById("h").style.transform=
+`translate(-50%,-100%) rotate(${(d.getHours()%12)*30}deg)`;
 
-digital.innerText=d.toLocaleTimeString("en-IN");
-day.innerText=d.toLocaleDateString("en-IN",{weekday:'long'});
-date.innerText=d.toLocaleDateString("hi-IN");
+document.getElementById("m").style.transform=
+`translate(-50%,-100%) rotate(${d.getMinutes()*6}deg)`;
+
+document.getElementById("s").style.transform=
+`translate(-50%,-100%) rotate(${d.getSeconds()*6}deg)`;
+
+document.getElementById("digital").innerText=
+d.toLocaleTimeString();
+
+document.getElementById("day").innerText=
+d.toLocaleDateString("en-IN",{weekday:'long'});
+
+document.getElementById("date").innerText=
+d.toLocaleDateString("hi-IN");
 }
 setInterval(updateClock,1000);
 
-/* AI */
-let female=["pooja","neha","priya","anjali","komal"];
-let male=["deepak","rahul","amit","rohit"];
+/* AI DETECT */
+let detectedPrefix="Mr.";
 
-let prefix="Mr.";
+document.getElementById("name").addEventListener("input",function(){
+let name=this.value.toLowerCase();
 
-function detectAI(){
-let n=name.value.toLowerCase();
-if(female.some(f=>n.includes(f))) prefix="Mrs.";
-else if(male.some(m=>n.includes(m))) prefix="Mr.";
-else prefix=n.endsWith("a")?"Mrs.":"Mr.";
-
-aiResult.innerText="AI: "+prefix;
+if(!name){
+aiResult.innerText="AI: Waiting...";
+return;
 }
 
-/* MESSAGE */
+if(name.endsWith("a") || name.endsWith("i")){
+detectedPrefix="Mrs.";
+}else{
+detectedPrefix="Mr.";
+}
+
+aiResult.innerText="AI: "+detectedPrefix;
+});
+
+/* MESSAGE (SPLIT FIX) */
 function sendMsg(){
-let num=number.value;
-if(!num.startsWith("91")) num="91"+num;
 
-let p=manual.value==="auto"?prefix:manual.value;
+let name=document.getElementById("name").value.trim();
+let number=document.getElementById("number").value.trim();
+let manual=document.getElementById("manual").value;
 
-let msg=`Dear ${p} ${name.value} Ji,
+if(!number.startsWith("91")) number="91"+number;
 
-मैं Deepak Dabi, Airtel AirFiber Recovery Advisor हूँ।
-आपका device collect करना है।
+let prefix = manual==="auto"?detectedPrefix:manual;
 
-धन्यवाद
+/* PART 1 */
+let msg1=`Dear ${prefix} ${name} Ji,
+
+मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
+आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।`;
+
+/* PART 2 */
+let msg2=`कृपया device ready रखें 🙏
+Kindly share your current location for smooth coordination.
+
+Device return न करने की स्थिति में penalty charges लग सकते हैं।
+
+धन्यवाद,
+Deepak Dabi
 📞 9521393991`;
 
-window.open(`https://wa.me/${num}?text=${encodeURIComponent(msg)}`);
+/* SEND */
+window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg1)}`);
+
+setTimeout(()=>{
+window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg2)}`);
+},2000);
+
 }
 
-/* MUSIC */
-let songs=[
-{ id:"1sYd7H9hQn0", name:"Le Photo Le" },
-{ id:"9x9XG7z5r7U", name:"DJ Remix" },
-{ id:"3JZ_D3ELwOQ", name:"Party Anthem" }
+/* YOUTUBE */
+let videos=[
+"1sYd7H9hQn0",
+"9x9XG7z5r7U",
+"3JZ_D3ELwOQ"
 ];
 
-let i=0;
+let index=0;
 
-function play(){
-player.src="https://www.youtube.com/embed/"+songs[i].id+"?autoplay=1";
-songName.innerText=songs[i].name;
+function playVideo(){
+document.getElementById("player").src=
+"https://www.youtube.com/embed/"+videos[index]+"?autoplay=1";
 }
 
-function next(){i=(i+1)%songs.length;play();}
-function prev(){i=(i-1+songs.length)%songs.length;play();}
-
-setInterval(next,30000);
-
-play();
+function nextVideo(){
+index=(index+1)%videos.length;
+playVideo();
+}
 
 </script>
 
