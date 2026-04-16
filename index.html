@@ -3,16 +3,77 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Message + Clock</title>
+<title>DD Premium Clock + Message</title>
 
 <style>
 body{
 margin:0;
-background:#0b0f14;
+background:linear-gradient(135deg,#0b0f14,#111);
 color:white;
 font-family:Arial;
 text-align:center;
 padding:20px;
+}
+
+/* CLOCK */
+.clock{
+width:260px;
+height:260px;
+border-radius:50%;
+margin:20px auto;
+position:relative;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(15px);
+border:4px solid rgba(255,255,255,0.1);
+box-shadow:0 0 30px rgba(0,198,255,0.3);
+}
+
+/* NUMBERS */
+.number{
+position:absolute;
+color:#00c6ff;
+font-weight:bold;
+font-size:18px;
+transform:translate(-50%,-50%);
+}
+
+/* HANDS */
+.hand{
+position:absolute;
+top:50%;
+left:50%;
+transform-origin:0% 50%;
+transform:rotate(90deg);
+border-radius:10px;
+}
+
+.hour{
+width:70px;
+height:5px;
+background:white;
+}
+
+.minute{
+width:90px;
+height:3px;
+background:#00c6ff;
+}
+
+.second{
+width:100px;
+height:2px;
+background:red;
+}
+
+.center{
+width:12px;
+height:12px;
+background:#00c6ff;
+border-radius:50%;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
 }
 
 /* CARD */
@@ -44,54 +105,36 @@ color:black;
 font-weight:bold;
 cursor:pointer;
 }
-
-/* CLOCK */
-.clock{
-width:200px;
-height:200px;
-border:6px solid #00c6ff;
-border-radius:50%;
-position:relative;
-margin:20px auto;
-}
-
-.hand{
-position:absolute;
-width:50%;
-height:2px;
-background:white;
-top:50%;
-transform-origin:100%;
-transform:rotate(90deg);
-}
-
-.hour{ height:4px; }
-.minute{ height:3px; }
-.second{ background:red; }
-
-.center{
-width:10px;
-height:10px;
-background:#00c6ff;
-border-radius:50%;
-position:absolute;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-}
 </style>
 </head>
 
 <body>
 
-<h2>📲 DD Auto Message + Clock</h2>
+<h2>📲 DD Premium Clock + Message</h2>
 
-<!-- ANALOG CLOCK -->
-<div class="clock">
+<!-- CLOCK -->
+<div class="clock" id="clock">
+
+<!-- NUMBERS -->
+<div class="number" style="top:5%; left:50%;">12</div>
+<div class="number" style="top:15%; left:75%;">1</div>
+<div class="number" style="top:35%; left:90%;">2</div>
+<div class="number" style="top:50%; left:95%;">3</div>
+<div class="number" style="top:65%; left:90%;">4</div>
+<div class="number" style="top:85%; left:75%;">5</div>
+<div class="number" style="top:95%; left:50%;">6</div>
+<div class="number" style="top:85%; left:25%;">7</div>
+<div class="number" style="top:65%; left:10%;">8</div>
+<div class="number" style="top:50%; left:5%;">9</div>
+<div class="number" style="top:35%; left:10%;">10</div>
+<div class="number" style="top:15%; left:25%;">11</div>
+
+<!-- HANDS -->
 <div class="hand hour" id="hour"></div>
 <div class="hand minute" id="minute"></div>
 <div class="hand second" id="second"></div>
 <div class="center"></div>
+
 </div>
 
 <!-- MESSAGE SYSTEM -->
@@ -106,7 +149,7 @@ transform:translate(-50%,-50%);
 
 <script>
 
-/* ⏰ CLOCK FUNCTION */
+/* CLOCK */
 function updateClock(){
 
 let now = new Date();
@@ -117,43 +160,9 @@ let hr = now.getHours();
 
 let secDeg = sec * 6;
 let minDeg = min * 6 + sec * 0.1;
-let hrDeg = hr * 30 + min * 0.5;
+let hrDeg = (hr % 12) * 30 + min * 0.5;
 
-document.getElementById("second").style.transform = `rotate(${secDeg}deg)`;
-document.getElementById("minute").style.transform = `rotate(${minDeg}deg)`;
-document.getElementById("hour").style.transform = `rotate(${hrDeg}deg)`;
+document.getElementById("second").style.transform =
+`translate(-50%, -50%) rotate(${secDeg}deg)`;
 
-}
-
-setInterval(updateClock,1000);
-
-/* 📲 MESSAGE FUNCTION */
-function sendMsg(){
-
-let name = document.getElementById("name").value;
-let number = document.getElementById("number").value;
-
-let message = `Dear Mr. ${name} Ji,
-
-मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
-आपका Airtel AirFiber device (Router & Adapter) collect करना है।
-
-कृपया device ready रखें 🙏
-और अपनी current location share कर दें।
-
-Device return न करने पर penalty charges लग सकते हैं।
-
-धन्यवाद,
-Deepak Dabi
-9521393991`;
-
-let url = "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
-
-window.open(url, "_blank");
-
-}
-
-</script>
-
-</body>
-</html>
+document.getElementById("minute
