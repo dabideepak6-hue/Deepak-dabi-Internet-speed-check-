@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Ultra Pro Clock</title>
+<title>DD Live Clock + Message</title>
 
 <style>
 :root{
@@ -20,20 +20,6 @@
 --primary:#007bff;
 }
 
-.blue{
---bg:#001f3f;
---card:#003366;
---text:#fff;
---primary:#00aaff;
-}
-
-.neon{
---bg:#000;
---card:#111;
---text:#00ffcc;
---primary:#00ffcc;
-}
-
 body{
 margin:0;
 background:var(--bg);
@@ -41,37 +27,168 @@ color:var(--text);
 font-family:Arial;
 text-align:center;
 padding:20px;
-transition:0.3s;
-}
-
-/* THEME BUTTONS */
-.theme-bar{
-margin-bottom:10px;
-}
-
-.theme-btn{
-padding:8px 12px;
-margin:5px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-background:var(--primary);
-color:black;
-font-weight:bold;
 }
 
 /* CLOCK */
 .clock{
-width:280px;
-height:280px;
+width:260px;
+height:260px;
 border-radius:50%;
 margin:20px auto;
 position:relative;
 background:radial-gradient(circle,#111 60%,#000);
-border:5px solid var(--primary);
-box-shadow:0 0 30px var(--primary);
+border:4px solid var(--primary);
+box-shadow:0 0 25px var(--primary);
 }
 
-/* NUMBERS */
 .number{
-position
+position:absolute;
+color:var(--primary);
+font-weight:bold;
+transform:translate(-50%,-50%);
+}
+
+/* HANDS FIX */
+.hand{
+position:absolute;
+top:50%;
+left:50%;
+transform-origin:50% 100%;
+transform:translate(-50%,-100%) rotate(90deg);
+}
+
+.hour{width:6px;height:70px;background:var(--text);}
+.minute{width:4px;height:90px;background:var(--primary);}
+.second{width:2px;height:100px;background:red;}
+
+.center{
+width:10px;height:10px;
+background:var(--primary);
+border-radius:50%;
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+}
+
+/* UI */
+.digital{font-size:22px;color:var(--primary);}
+.date{font-size:16px;}
+
+.card{
+background:var(--card);
+padding:20px;
+border-radius:15px;
+max-width:350px;
+margin:20px auto;
+}
+
+input{
+padding:10px;
+margin:10px;
+width:90%;
+border-radius:10px;
+border:none;
+}
+
+button{
+padding:10px;
+border:none;
+border-radius:10px;
+background:var(--primary);
+cursor:pointer;
+}
+</style>
+</head>
+
+<body>
+
+<h2>📱 DD Live Clock + Message</h2>
+
+<!-- CLOCK -->
+<div class="clock" id="clock"></div>
+
+<div class="digital" id="digital"></div>
+<div class="date" id="date"></div>
+
+<!-- MESSAGE -->
+<div class="card">
+<input id="name" placeholder="Customer Name">
+<input id="number" placeholder="Mobile Number (91XXXXXXXXXX)">
+<button onclick="sendMsg()">Send Message</button>
+</div>
+
+<script>
+
+/* CREATE NUMBERS SAFELY */
+const clock = document.getElementById("clock");
+
+for(let i=1;i<=12;i++){
+let angle=(i*30-90)*Math.PI/180;
+let x=50+40*Math.cos(angle);
+let y=50+40*Math.sin(angle);
+
+let num=document.createElement("div");
+num.className="number";
+num.style.left=x+"%";
+num.style.top=y+"%";
+num.innerText=i;
+
+clock.appendChild(num);
+}
+
+/* ADD HANDS */
+clock.innerHTML += `
+<div class="hand hour" id="hour"></div>
+<div class="hand minute" id="minute"></div>
+<div class="hand second" id="second"></div>
+<div class="center"></div>
+`;
+
+/* CLOCK FUNCTION */
+function updateClock(){
+
+let now=new Date();
+
+let sec=now.getSeconds();
+let min=now.getMinutes();
+let hr=now.getHours();
+
+document.getElementById("second").style.transform=
+`translate(-50%,-100%) rotate(${sec*6}deg)`;
+
+document.getElementById("minute").style.transform=
+`translate(-50%,-100%) rotate(${min*6+sec*0.1}deg)`;
+
+document.getElementById("hour").style.transform=
+`translate(-50%,-100%) rotate(${(hr%12)*30+min*0.5}deg)`;
+
+/* DIGITAL */
+document.getElementById("digital").innerText=
+now.toLocaleTimeString("en-IN");
+
+/* DATE */
+document.getElementById("date").innerText=
+now.toLocaleDateString("hi-IN",{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+
+updateClock();
+setInterval(updateClock,1000);
+
+/* MESSAGE */
+function sendMsg(){
+let name=document.getElementById("name").value;
+let number=document.getElementById("number").value;
+
+let msg=`Dear Mr. ${name} Ji,
+Airtel AirFiber device collect karna hai.
+Location share kare.
+
+Deepak Dabi`;
+
+window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`);
+}
+
+</script>
+
+</body>
+</html>
