@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD AI Smart Message System</title>
+<title>DD Ultra AI Clock</title>
 
 <style>
 body{
@@ -15,24 +15,69 @@ text-align:center;
 padding:20px;
 }
 
-h2{color:#00c6ff;}
+/* CLOCK */
+.clock{
+width:260px;height:260px;
+border-radius:50%;
+margin:20px auto;
+position:relative;
+background:radial-gradient(circle,#111 60%,#000);
+border:4px solid #00c6ff;
+box-shadow:0 0 25px #00c6ff;
+}
 
+.number{
+position:absolute;
+color:#00c6ff;
+font-weight:bold;
+transform:translate(-50%,-50%);
+}
+
+.hand{
+position:absolute;
+top:50%;
+left:50%;
+transform-origin:50% 100%;
+transform:translate(-50%,-100%) rotate(90deg);
+}
+
+.hour{width:6px;height:70px;background:white;}
+.minute{width:4px;height:90px;background:#00c6ff;}
+.second{width:2px;height:100px;background:red;}
+
+.center{
+width:10px;height:10px;
+background:#00c6ff;
+border-radius:50%;
+position:absolute;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+}
+
+/* TEXT */
+.digital{font-size:22px;color:#00c6ff;}
+.day{
+font-size:20px;
+color:#00ffcc;
+font-weight:bold;
+}
+.date{font-size:16px;}
+
+/* CARD */
 .card{
 background:#111;
 padding:20px;
 border-radius:15px;
 max-width:350px;
 margin:20px auto;
-box-shadow:0 0 15px #00c6ff;
 }
 
 input,select{
-padding:12px;
+padding:10px;
 margin:10px;
 width:90%;
 border-radius:10px;
 border:none;
-font-size:16px;
 }
 
 button{
@@ -42,25 +87,31 @@ border-radius:10px;
 background:#00c6ff;
 cursor:pointer;
 font-weight:bold;
-font-size:16px;
 }
 
 .result{
 color:#00c6ff;
 font-size:18px;
-margin-top:10px;
 }
 </style>
 </head>
 
 <body>
 
-<h2>🤖 DD AI Smart Message System</h2>
+<h2>🤖 DD Ultra AI Clock System</h2>
 
+<!-- CLOCK -->
+<div class="clock" id="clock"></div>
+
+<div class="digital" id="digital"></div>
+<div class="day" id="day"></div>
+<div class="date" id="date"></div>
+
+<!-- MESSAGE -->
 <div class="card">
 
-<input id="name" placeholder="Enter Customer Name" oninput="detectAI()">
-<input id="number" placeholder="Mobile Number (9876543210)">
+<input id="name" placeholder="Enter Name" oninput="detectAI()">
+<input id="number" placeholder="Mobile Number">
 
 <div class="result" id="aiResult">AI: Waiting...</div>
 
@@ -76,78 +127,113 @@ margin-top:10px;
 
 <script>
 
-/* 🔥 DATA LIST */
-let femaleList = [
-"pooja","sunita","neha","rekha","kavita","anita","priya",
-"meena","suman","rani","komal","shreya","payal","anjali",
-"deepika","radha","seema","ritu","nisha"
-];
+/* CLOCK CREATE */
+const clock = document.getElementById("clock");
 
-let maleList = [
-"ramesh","jitendra","deepak","mukesh","rajesh","suresh",
-"mahesh","rohit","amit","vikas","rahul","manoj",
-"ajay","sanjay","arjun","karan"
-];
+for(let i=1;i<=12;i++){
+let angle=(i*30-90)*Math.PI/180;
+let x=50+40*Math.cos(angle);
+let y=50+40*Math.sin(angle);
 
-let detectedPrefix = "Mr.";
-let confidence = 50;
+let num=document.createElement("div");
+num.className="number";
+num.style.left=x+"%";
+num.style.top=y+"%";
+num.innerText=i;
 
-/* 🤖 AI DETECT FUNCTION */
+clock.appendChild(num);
+}
+
+clock.innerHTML += `
+<div class="hand hour" id="hour"></div>
+<div class="hand minute" id="minute"></div>
+<div class="hand second" id="second"></div>
+<div class="center"></div>
+`;
+
+/* CLOCK FUNCTION */
+function updateClock(){
+
+let now=new Date();
+
+let sec=now.getSeconds();
+let min=now.getMinutes();
+let hr=now.getHours();
+
+/* HANDS */
+document.getElementById("second").style.transform =
+`translate(-50%,-100%) rotate(${sec*6}deg)`;
+
+document.getElementById("minute").style.transform =
+`translate(-50%,-100%) rotate(${min*6+sec*0.1}deg)`;
+
+document.getElementById("hour").style.transform =
+`translate(-50%,-100%) rotate(${(hr%12)*30+min*0.5}deg)`;
+
+/* DIGITAL */
+document.getElementById("digital").innerText =
+now.toLocaleTimeString("en-IN");
+
+/* DAY */
+document.getElementById("day").innerText =
+now.toLocaleDateString("en-IN",{weekday:'long'});
+
+/* DATE */
+document.getElementById("date").innerText =
+now.toLocaleDateString("hi-IN",{day:'numeric',month:'long',year:'numeric'});
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
+/* AI DATA */
+let femaleList = ["pooja","sunita","neha","rekha","kavita","priya","anjali","komal","nisha"];
+let maleList = ["deepak","jitendra","ramesh","rahul","amit","rohit"];
+
+let detectedPrefix="Mr.";
+let confidence=50;
+
+/* AI DETECT */
 function detectAI(){
 
-let name = document.getElementById("name").value.toLowerCase().trim();
+let name=document.getElementById("name").value.toLowerCase();
 
 if(!name){
 document.getElementById("aiResult").innerText="AI: Waiting...";
 return;
 }
 
-/* STEP 1: DIRECT MATCH */
-if(femaleList.some(n => name.includes(n))){
-detectedPrefix="Mrs.";
-confidence=95;
+if(femaleList.some(n=>name.includes(n))){
+detectedPrefix="Mrs."; confidence=95;
 }
-else if(maleList.some(n => name.includes(n))){
-detectedPrefix="Mr.";
-confidence=95;
+else if(maleList.some(n=>name.includes(n))){
+detectedPrefix="Mr."; confidence=95;
 }
 else{
-
-/* STEP 2: ENDING LOGIC */
-if(name.endsWith("a") || name.endsWith("i") || name.endsWith("y")){
-detectedPrefix="Mrs.";
-confidence=75;
+if(name.endsWith("a") || name.endsWith("i")){
+detectedPrefix="Mrs."; confidence=75;
+}else{
+detectedPrefix="Mr."; confidence=70;
 }
-else{
-detectedPrefix="Mr.";
-confidence=70;
 }
 
-}
-
-/* SHOW RESULT */
 document.getElementById("aiResult").innerText =
-`AI: ${detectedPrefix} (${confidence}% sure)`;
+`AI: ${detectedPrefix} (${confidence}%)`;
 
 }
 
-/* 📩 SEND MESSAGE */
+/* MESSAGE */
 function sendMsg(){
 
-let name = document.getElementById("name").value.trim();
-let number = document.getElementById("number").value.trim();
-let manual = document.getElementById("manual").value;
+let name=document.getElementById("name").value.trim();
+let number=document.getElementById("number").value.trim();
+let manual=document.getElementById("manual").value;
 
-/* NUMBER FIX */
-if(!number.startsWith("91")){
-number="91"+number;
-}
+if(!number.startsWith("91")) number="91"+number;
 
-/* FINAL PREFIX */
-let prefix = manual === "auto" ? detectedPrefix : manual;
+let prefix = manual==="auto"?detectedPrefix:manual;
 
-/* FULL MESSAGE */
-let message =
+let msg =
 `Dear ${prefix} ${name} Ji,
 
 मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
@@ -163,10 +249,7 @@ Deepak Dabi
 📞 9521393991
 Airtel AirFiber Recovery Advisor`;
 
-/* OPEN WHATSAPP */
-let url = "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
-window.open(url, "_blank");
-
+window.open(`https://wa.me/${number}?text=${encodeURIComponent(msg)}`);
 }
 
 </script>
