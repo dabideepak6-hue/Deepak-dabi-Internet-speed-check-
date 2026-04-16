@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Premium Clock + Message</title>
+<title>DD Clock + Message</title>
 
 <style>
 body{
@@ -44,7 +44,6 @@ top:50%;
 left:50%;
 transform-origin:0% 50%;
 transform:rotate(90deg);
-border-radius:10px;
 }
 
 .hour{
@@ -74,6 +73,13 @@ position:absolute;
 top:50%;
 left:50%;
 transform:translate(-50%,-50%);
+}
+
+/* DATE */
+.date{
+font-size:18px;
+color:#00c6ff;
+margin-top:10px;
 }
 
 /* CARD */
@@ -110,12 +116,11 @@ cursor:pointer;
 
 <body>
 
-<h2>📲 DD Premium Clock + Message</h2>
+<h2>📲 DD Live Clock + Message</h2>
 
 <!-- CLOCK -->
-<div class="clock" id="clock">
+<div class="clock">
 
-<!-- NUMBERS -->
 <div class="number" style="top:5%; left:50%;">12</div>
 <div class="number" style="top:15%; left:75%;">1</div>
 <div class="number" style="top:35%; left:90%;">2</div>
@@ -129,7 +134,6 @@ cursor:pointer;
 <div class="number" style="top:35%; left:10%;">10</div>
 <div class="number" style="top:15%; left:25%;">11</div>
 
-<!-- HANDS -->
 <div class="hand hour" id="hour"></div>
 <div class="hand minute" id="minute"></div>
 <div class="hand second" id="second"></div>
@@ -137,7 +141,10 @@ cursor:pointer;
 
 </div>
 
-<!-- MESSAGE SYSTEM -->
+<!-- DATE -->
+<div class="date" id="date"></div>
+
+<!-- MESSAGE -->
 <div class="card">
 
 <input type="text" id="name" placeholder="Customer Name">
@@ -149,7 +156,7 @@ cursor:pointer;
 
 <script>
 
-/* CLOCK */
+/* CLOCK + DATE */
 function updateClock(){
 
 let now = new Date();
@@ -158,11 +165,59 @@ let sec = now.getSeconds();
 let min = now.getMinutes();
 let hr = now.getHours();
 
+/* ROTATION */
 let secDeg = sec * 6;
 let minDeg = min * 6 + sec * 0.1;
 let hrDeg = (hr % 12) * 30 + min * 0.5;
 
+/* APPLY */
 document.getElementById("second").style.transform =
 `translate(-50%, -50%) rotate(${secDeg}deg)`;
 
-document.getElementById("minute
+document.getElementById("minute").style.transform =
+`translate(-50%, -50%) rotate(${minDeg}deg)`;
+
+document.getElementById("hour").style.transform =
+`translate(-50%, -50%) rotate(${hrDeg}deg)`;
+
+/* DATE */
+let options = { day:'numeric', month:'long', year:'numeric' };
+document.getElementById("date").innerText =
+now.toLocaleDateString("en-IN", options);
+
+}
+
+/* IMPORTANT FIX */
+updateClock(); // first run तुरंत
+setInterval(updateClock,1000);
+
+/* MESSAGE */
+function sendMsg(){
+
+let name = document.getElementById("name").value;
+let number = document.getElementById("number").value;
+
+let message = `Dear Mr. ${name} Ji,
+
+मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
+आपका Airtel AirFiber device collect करना है।
+
+कृपया device ready रखें 🙏
+और location share करें।
+
+Device return न करने पर penalty लग सकती है।
+
+धन्यवाद,
+Deepak Dabi
+9521393991`;
+
+let url = "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
+
+window.open(url, "_blank");
+
+}
+
+</script>
+
+</body>
+</html>
