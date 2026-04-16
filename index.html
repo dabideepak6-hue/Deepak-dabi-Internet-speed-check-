@@ -3,59 +3,119 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Final System</title>
+<title>DD Pro Dashboard</title>
 
 <style>
-body{
-margin:0;
-background:#000;
-color:white;
-font-family:Arial;
-text-align:center;
+body{margin:0;background:#020b14;color:white;font-family:Arial}
+h1{text-align:center;color:#00f5ff}
+
+.container{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:10px;
+padding:10px;
 }
 
 .card{
-background:#111;
-margin:15px;
+background:rgba(255,255,255,0.05);
+backdrop-filter:blur(10px);
+border-radius:15px;
 padding:15px;
-border-radius:10px;
+box-shadow:0 0 20px rgba(0,255,255,0.2);
 }
 
-input,select,button{
+/* CLOCK */
+.clock{
+width:240px;height:240px;
+border-radius:50%;
+border:4px solid cyan;
+margin:auto;
+position:relative;
+box-shadow:0 0 30px cyan;
+}
+.number{position:absolute;color:#00f5ff;transform:translate(-50%,-50%)}
+.hand{position:absolute;top:50%;left:50%;transform-origin:50% 100%;transform:translate(-50%,-100%)}
+.hour{width:6px;height:70px;background:white}
+.minute{width:4px;height:90px;background:#00f5ff}
+.second{width:2px;height:100px;background:red}
+.center{width:10px;height:10px;background:#00f5ff;border-radius:50%;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+
+.digital{text-align:center;color:#00f5ff;font-size:26px}
+.sub{text-align:center}
+
+/* WEATHER */
+.temp{font-size:50px;color:orange}
+.weather-icon{font-size:70px}
+.row{display:flex;justify-content:space-around}
+
+/* MESSAGE */
+input,select{
+width:90%;
 padding:10px;
 margin:5px;
-width:90%;
+border-radius:10px;
 border:none;
-border-radius:8px;
 }
-
 button{
-background:orange;
-color:black;
-font-weight:bold;
-}
-
-/* PLAYER */
-iframe{
-width:100%;
-height:220px;
+width:90%;
+padding:12px;
+background:linear-gradient(90deg,green,lightgreen);
 border:none;
 border-radius:10px;
+font-weight:bold;
+}
+.preview{
+background:#001f2f;
+padding:10px;
+border-radius:10px;
+margin-top:10px;
+font-size:13px;
+white-space:pre-line;
+}
+
+/* MOBILE */
+@media(max-width:800px){
+.container{grid-template-columns:1fr;}
 }
 </style>
 </head>
 
 <body>
 
-<h2>🚀 DD Final Working System</h2>
+<h1>DD PRO DASHBOARD</h1>
+
+<div class="container">
+
+<!-- CLOCK -->
+<div class="card">
+<div class="clock" id="clock"></div>
+<div class="digital" id="time"></div>
+<div class="sub" id="date"></div>
+<div class="sub" id="day"></div>
+</div>
+
+<!-- WEATHER -->
+<div class="card">
+<div class="row">
+<div class="temp" id="temp">--°C</div>
+<div class="weather-icon" id="icon">⛅</div>
+</div>
+<div id="desc">Loading...</div>
+<div class="row">
+<div>💧 <span id="humidity"></span>%</div>
+<div>🌬 <span id="wind"></span></div>
+</div>
+</div>
+
+</div>
 
 <!-- MESSAGE -->
 <div class="card">
 
-<input id="name" placeholder="Enter Name" oninput="detectAI()">
+<input id="name" placeholder="Customer Name" oninput="detectAI()">
 <input id="number" placeholder="Mobile Number">
 
-<div id="aiResult">AI: Waiting...</div>
+<div id="ai">AI: Waiting...</div>
 
 <select id="manual">
 <option value="auto">Auto</option>
@@ -63,100 +123,111 @@ border-radius:10px;
 <option value="Mrs.">Mrs.</option>
 </select>
 
-<button onclick="sendMsg()">Send WhatsApp</button>
+<button onclick="sendMsg()">📲 Send WhatsApp</button>
 
-</div>
-
-<!-- YOUTUBE PLAYER -->
-<div class="card">
-
-<h3>🎧 Rajasthani DJ Player</h3>
-
-<iframe id="player"
-src="https://www.youtube.com/embed/1sYd7H9hQn0?mute=1"
-allow="autoplay"
-allowfullscreen>
-</iframe>
-
-<br>
-
-<button onclick="start()">▶ Start DJ</button>
-<button onclick="next()">⏭ Next</button>
+<div class="preview" id="preview"></div>
 
 </div>
 
 <script>
 
-/* AI DETECT */
-let detectedPrefix="Mr.";
+/* CLOCK */
+const clock=document.getElementById("clock");
+for(let i=1;i<=12;i++){
+let a=(i*30-90)*Math.PI/180;
+let x=50+40*Math.cos(a);
+let y=50+40*Math.sin(a);
+let n=document.createElement("div");
+n.className="number";
+n.style.left=x+"%";
+n.style.top=y+"%";
+n.innerText=i;
+clock.appendChild(n);
+}
+clock.innerHTML+=`
+<div class="hand hour" id="h"></div>
+<div class="hand minute" id="m"></div>
+<div class="hand second" id="s"></div>
+<div class="center"></div>
+`;
+
+function updateClock(){
+let d=new Date();
+h.style.transform=`translate(-50%,-100%) rotate(${(d.getHours()%12)*30}deg)`;
+m.style.transform=`translate(-50%,-100%) rotate(${d.getMinutes()*6}deg)`;
+s.style.transform=`translate(-50%,-100%) rotate(${d.getSeconds()*6}deg)`;
+
+time.innerText=d.toLocaleTimeString();
+date.innerText=d.toLocaleDateString();
+day.innerText=d.toLocaleDateString("en-IN",{weekday:'long'});
+}
+setInterval(updateClock,1000);
+
+/* WEATHER */
+async function getWeather(){
+let res=await fetch("https://wttr.in/?format=j1");
+let data=await res.json();
+let c=data.current_condition[0];
+
+temp.innerText=c.temp_C+"°C";
+desc.innerText=c.weatherDesc[0].value;
+humidity.innerText=c.humidity;
+wind.innerText=c.windspeedKmph;
+
+/* ICON */
+let d=c.weatherDesc[0].value.toLowerCase();
+if(d.includes("sun")) icon.innerText="☀️";
+else if(d.includes("cloud")) icon.innerText="☁️";
+else if(d.includes("rain")) icon.innerText="🌧️";
+else icon.innerText="⛅";
+}
+getWeather();
+
+/* AI */
+let prefix="Mr.";
 
 function detectAI(){
 let name=document.getElementById("name").value.toLowerCase();
-
-if(!name){
-document.getElementById("aiResult").innerText="AI: Waiting...";
-return;
+prefix = (name.endsWith("a")||name.endsWith("i"))?"Mrs.":"Mr.";
+ai.innerText="AI: "+prefix;
+updatePreview();
 }
 
-if(name.endsWith("a") || name.endsWith("i")){
-detectedPrefix="Mrs.";
-}else{
-detectedPrefix="Mr.";
-}
+/* FULL MESSAGE */
+function getMessage(name){
+return `Dear ${prefix} ${name} Ji,
 
-document.getElementById("aiResult").innerText="AI: "+detectedPrefix;
-}
+मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
+आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।
 
-/* WHATSAPP FIX */
-function sendMsg(){
+कृपया device ready रखें 🙏
+Kindly share your current location for smooth coordination.
 
-let name=document.getElementById("name").value.trim();
-let number=document.getElementById("number").value.trim();
-let manual=document.getElementById("manual").value;
-
-if(!number.startsWith("91")) number="91"+number;
-
-let prefix = manual==="auto"?detectedPrefix:manual;
-
-/* SAFE MESSAGE */
-let msg=`Dear ${prefix} ${name} Ji,
-
-मैं Deepak Dabi, Airtel AirFiber Recovery Advisor हूँ।
-
-आपका Airtel AirFiber Box collect करना है।
-
-कृपया device ready रखें और location share करें।
+Device return न करने की स्थिति में Airtel द्वारा penalty charges लग सकते हैं।
 
 धन्यवाद,
 Deepak Dabi
-📞 9521393991`;
+📞 9521393991
+Airtel AirFiber Recovery Advisor`;
+}
 
-/* SAME TAB OPEN */
+/* PREVIEW */
+function updatePreview(){
+let name=document.getElementById("name").value;
+preview.innerText=getMessage(name);
+}
+
+/* SEND */
+function sendMsg(){
+let name=document.getElementById("name").value;
+let number=document.getElementById("number").value;
+
+if(!number.startsWith("91")) number="91"+number;
+
+let msg=getMessage(name);
+
 window.location.href=
 `https://api.whatsapp.com/send?phone=${number}&text=${encodeURIComponent(msg)}`;
-}
-
-/* YOUTUBE PLAYLIST */
-let videos=[
-"1sYd7H9hQn0",
-"9x9XG7z5r7U",
-"3JZ_D3ELwOQ"
-];
-
-let i=0;
-
-/* START */
-function start(){
-document.getElementById("player").src=
-"https://www.youtube.com/embed/"+videos[i]+"?autoplay=1&mute=0";
-}
-
-/* NEXT */
-function next(){
-i=(i+1)%videos.length;
-
-document.getElementById("player").src=
-"https://www.youtube.com/embed/"+videos[i]+"?autoplay=1&mute=0";
 }
 
 </script>
