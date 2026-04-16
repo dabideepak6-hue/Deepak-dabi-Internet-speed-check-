@@ -3,45 +3,40 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Auto YouTube TV</title>
+<title>DD Message + Clock</title>
 
 <style>
 body{
 margin:0;
-background:#000;
+background:#0b0f14;
 color:white;
 font-family:Arial;
 text-align:center;
+padding:20px;
 }
 
-h1{
-color:#00c6ff;
-margin:10px;
-}
-
-.container{
-max-width:1000px;
-margin:auto;
-padding:10px;
-}
-
+/* CARD */
 .card{
 background:#111;
-padding:12px;
-border-radius:12px;
-margin:10px 0;
+padding:20px;
+border-radius:15px;
+max-width:400px;
+margin:20px auto;
 }
 
-iframe{
-width:100%;
-height:420px;
+/* INPUT */
+input{
+padding:10px;
+margin:10px;
+width:90%;
+border-radius:10px;
 border:none;
-border-radius:12px;
+font-size:16px;
 }
 
+/* BUTTON */
 button{
-padding:10px 15px;
-margin:5px;
+padding:12px 20px;
 border:none;
 border-radius:10px;
 background:#00c6ff;
@@ -50,123 +45,113 @@ font-weight:bold;
 cursor:pointer;
 }
 
-.big{
-font-size:22px;
-color:#00c6ff;
-font-weight:bold;
+/* CLOCK */
+.clock{
+width:200px;
+height:200px;
+border:6px solid #00c6ff;
+border-radius:50%;
+position:relative;
+margin:20px auto;
 }
 
-.ticker{
-background:#111;
-padding:8px;
-border-top:2px solid #00c6ff;
-border-bottom:2px solid #00c6ff;
-overflow:hidden;
+.hand{
+position:absolute;
+width:50%;
+height:2px;
+background:white;
+top:50%;
+transform-origin:100%;
+transform:rotate(90deg);
 }
 
-.ticker span{
-display:inline-block;
-white-space:nowrap;
-animation:scroll 10s linear infinite;
-color:#00f5ff;
-font-weight:bold;
-}
+.hour{ height:4px; }
+.minute{ height:3px; }
+.second{ background:red; }
 
-@keyframes scroll{
-0%{transform:translateX(100%)}
-100%{transform:translateX(-100%)}
+.center{
+width:10px;
+height:10px;
+background:#00c6ff;
+border-radius:50%;
+position:absolute;
+top:50%;
+left:50%;
+transform:translate(-50%,-50%);
 }
 </style>
 </head>
 
 <body>
 
-<h1>📺 DD AUTO YOUTUBE TV DASHBOARD</h1>
+<h2>📲 DD Auto Message + Clock</h2>
 
-<div class="ticker">
-<span id="news">AUTO MODE ACTIVE • NO API REQUIRED • STABLE SYSTEM • YOUTUBE EMBED MODE RUNNING • DD TV ONLINE...</span>
+<!-- ANALOG CLOCK -->
+<div class="clock">
+<div class="hand hour" id="hour"></div>
+<div class="hand minute" id="minute"></div>
+<div class="hand second" id="second"></div>
+<div class="center"></div>
 </div>
 
-<div class="container">
-
-<!-- PLAYER -->
+<!-- MESSAGE SYSTEM -->
 <div class="card">
 
-<iframe id="player"
-src="https://www.youtube.com/embed/Dd5oJug8R38?autoplay=1"
-allow="autoplay; encrypted-media"
-allowfullscreen>
-</iframe>
+<input type="text" id="name" placeholder="Customer Name">
+<input type="text" id="number" placeholder="Mobile Number (91XXXXXXXXXX)">
 
-<div>
-<button onclick="startAuto()">🔁 AUTO PLAY</button>
-<button onclick="stopAuto()">⛔ STOP</button>
-</div>
-
-</div>
-
-<!-- INFO -->
-<div class="card">
-
-<h3>📊 STATUS</h3>
-<div class="big" id="status">Ready</div>
-
-</div>
+<button onclick="sendMsg()">Send Message</button>
 
 </div>
 
 <script>
 
-/* 🎬 YOUR VIDEO LIST (ADD YOUR VIDEOS HERE) */
-let videos = [
-"Dd5oJug8R38",
-"dQw4w9WgXcQ",
-"3JZ_D3ELwOQ",
-"kJQP7kiw5Fk"
-];
+/* ⏰ CLOCK FUNCTION */
+function updateClock(){
 
-let i = 0;
-let interval;
+let now = new Date();
 
-/* PLAY VIDEO */
-function play(id){
-document.getElementById("player").src =
-"https://www.youtube.com/embed/" + id + "?autoplay=1";
-}
+let sec = now.getSeconds();
+let min = now.getMinutes();
+let hr = now.getHours();
 
-/* AUTO MODE */
-function startAuto(){
+let secDeg = sec * 6;
+let minDeg = min * 6 + sec * 0.1;
+let hrDeg = hr * 30 + min * 0.5;
 
-document.getElementById("status").innerText = "AUTO MODE RUNNING";
-
-interval = setInterval(() => {
-i++;
-if(i >= videos.length) i = 0;
-play(videos[i]);
-}, 5000);
+document.getElementById("second").style.transform = `rotate(${secDeg}deg)`;
+document.getElementById("minute").style.transform = `rotate(${minDeg}deg)`;
+document.getElementById("hour").style.transform = `rotate(${hrDeg}deg)`;
 
 }
 
-/* STOP */
-function stopAuto(){
-clearInterval(interval);
-document.getElementById("status").innerText = "STOPPED";
+setInterval(updateClock,1000);
+
+/* 📲 MESSAGE FUNCTION */
+function sendMsg(){
+
+let name = document.getElementById("name").value;
+let number = document.getElementById("number").value;
+
+let message = `Dear Mr. ${name} Ji,
+
+मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
+आपका Airtel AirFiber device (Router & Adapter) collect करना है।
+
+कृपया device ready रखें 🙏
+और अपनी current location share कर दें।
+
+Device return न करने पर penalty charges लग सकते हैं।
+
+धन्यवाद,
+Deepak Dabi
+9521393991`;
+
+let url = "https://wa.me/" + number + "?text=" + encodeURIComponent(message);
+
+window.open(url, "_blank");
+
 }
-
-/* NEWS LOOP */
-let news = [
-"DD AUTO TV ACTIVE",
-"NO API REQUIRED SYSTEM",
-"STABLE VIDEO ENGINE",
-"AUTO SWITCH ENABLED"
-];
-
-let n = 0;
-
-setInterval(()=>{
-document.getElementById("news").innerText = news[n];
-n = (n + 1) % news.length;
-},4000);
 
 </script>
 
