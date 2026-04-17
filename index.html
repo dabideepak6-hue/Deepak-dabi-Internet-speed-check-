@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Recovery Sender</title>
+<title>Deepak Dabi Recovery CRM</title>
 
 <style>
 body{
@@ -14,23 +14,34 @@ font-family:Arial;
 text-align:center;
 }
 
+h2{
+color:#00f5ff;
+margin-top:15px;
+}
+
 .card{
 background:rgba(255,255,255,0.05);
-padding:15px;
 margin:15px;
+padding:15px;
 border-radius:15px;
 box-shadow:0 0 20px rgba(0,255,255,0.2);
 }
 
-input,button{
+input{
 width:90%;
-padding:10px;
-margin:5px;
-border-radius:10px;
+padding:12px;
+margin:8px;
 border:none;
+border-radius:10px;
+outline:none;
 }
 
 button{
+width:92%;
+padding:12px;
+margin-top:10px;
+border:none;
+border-radius:10px;
 background:linear-gradient(90deg,green,lightgreen);
 font-weight:bold;
 cursor:pointer;
@@ -39,6 +50,7 @@ cursor:pointer;
 .preview{
 background:#001f2f;
 padding:10px;
+margin-top:10px;
 border-radius:10px;
 white-space:pre-line;
 text-align:left;
@@ -49,7 +61,7 @@ font-size:13px;
 
 <body>
 
-<h2>🚀 AI RECOVERY WHATSAPP SENDER</h2>
+<h2>🚀 Recovery CRM System</h2>
 
 <div class="card">
 
@@ -64,20 +76,16 @@ font-size:13px;
 
 <script>
 
-/* AI PREFIX */
-function getPrefix(name){
-name = name.toLowerCase();
-return (name.endsWith("a") || name.endsWith("i")) ? "Mrs." : "Mr.";
-}
-
-/* 🔥 SAME RECOVERY MESSAGE */
+/* SAFE MESSAGE GENERATOR */
 function getMessage(name){
 
 if(!name || name.trim()===""){
 name="Customer";
 }
 
-let prefix = getPrefix(name);
+let prefix = (name.toLowerCase().endsWith("a") || name.toLowerCase().endsWith("i"))
+? "Mrs."
+: "Mr.";
 
 return `Dear ${prefix} ${name} Ji,
 
@@ -102,11 +110,20 @@ document.getElementById("preview").innerText=getMessage(name);
 }
 updatePreview();
 
-/* SEND */
+/* SEND WHATSAPP */
 function sendMsg(){
 
 let name=document.getElementById("name").value;
 let number=document.getElementById("number").value;
+
+if(!name || name.trim()===""){
+name="Customer";
+}
+
+if(!number){
+alert("Please enter number");
+return;
+}
 
 if(!number.startsWith("91")){
 number="91"+number;
