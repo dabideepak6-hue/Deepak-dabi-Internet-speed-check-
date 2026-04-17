@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Recovery WhatsApp System</title>
+<title>AI Recovery Sender</title>
 
 <style>
 body{
@@ -22,7 +22,7 @@ border-radius:15px;
 box-shadow:0 0 20px rgba(0,255,255,0.2);
 }
 
-textarea,input,button{
+input,button{
 width:90%;
 padding:10px;
 margin:5px;
@@ -49,25 +49,20 @@ font-size:13px;
 
 <body>
 
-<h2>🚀 AI RECOVERY WHATSAPP SYSTEM</h2>
+<h2>🚀 AI RECOVERY WHATSAPP SENDER</h2>
 
 <div class="card">
 
-<textarea id="data" rows="6" placeholder="Enter:
-Name,Number
-Deepak,9999999999
-Rameswari,8888888888"></textarea>
+<input id="name" placeholder="Customer Name" oninput="updatePreview()">
+<input id="number" placeholder="Mobile Number">
 
-<button onclick="start()">📲 Start Sending</button>
+<button onclick="sendMsg()">📲 Send WhatsApp</button>
 
-<div class="preview" id="status">Status: Waiting...</div>
+<div class="preview" id="preview"></div>
 
 </div>
 
 <script>
-
-let index = 0;
-let users = [];
 
 /* AI PREFIX */
 function getPrefix(name){
@@ -75,8 +70,12 @@ name = name.toLowerCase();
 return (name.endsWith("a") || name.endsWith("i")) ? "Mrs." : "Mr.";
 }
 
-/* 🔥 SAME RECOVERY MESSAGE (UNCHANGED) */
+/* 🔥 SAME RECOVERY MESSAGE */
 function getMessage(name){
+
+if(!name || name.trim()===""){
+name="Customer";
+}
 
 let prefix = getPrefix(name);
 
@@ -96,56 +95,31 @@ Deepak Dabi
 Airtel AirFiber Recovery Advisor`;
 }
 
-function start(){
-
-let raw = document.getElementById("data").value.trim();
-
-if(!raw){
-alert("Enter data");
-return;
+/* PREVIEW */
+function updatePreview(){
+let name=document.getElementById("name").value;
+document.getElementById("preview").innerText=getMessage(name);
 }
+updatePreview();
 
-users = raw.split("\n").map(line=>{
-let parts = line.split(",");
-return {
-name: parts[0].trim(),
-number: parts[1].trim()
-};
-});
+/* SEND */
+function sendMsg(){
 
-index = 0;
-sendNext();
-}
+let name=document.getElementById("name").value;
+let number=document.getElementById("number").value;
 
-function sendNext(){
-
-if(index >= users.length){
-document.getElementById("status").innerText = "✅ Completed!";
-return;
-}
-
-let user = users[index];
-
-let number = user.number;
 if(!number.startsWith("91")){
-number = "91" + number;
+number="91"+number;
 }
 
-let message = getMessage(user.name);
+let message = getMessage(name);
 
 let url = "https://api.whatsapp.com/send?phone="
 + number
 + "&text="
 + encodeURIComponent(message);
 
-document.getElementById("status").innerText =
-`Sending ${index+1}/${users.length} → ${user.name}`;
-
-window.open(url, "_blank");
-
-index++;
-
-setTimeout(sendNext, 4000);
+window.open(url,"_blank");
 }
 
 </script>
