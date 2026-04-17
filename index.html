@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DD Live Dashboard Pro</title>
+<title>AI Recovery WhatsApp System</title>
 
 <style>
 body{
 margin:0;
-background:#020b14;
+background:#0b0f1a;
 color:white;
 font-family:Arial;
 text-align:center;
@@ -16,46 +16,18 @@ text-align:center;
 
 .card{
 background:rgba(255,255,255,0.05);
-backdrop-filter:blur(10px);
-border-radius:15px;
 padding:15px;
 margin:15px;
+border-radius:15px;
 box-shadow:0 0 20px rgba(0,255,255,0.2);
 }
 
-.clock{
-width:220px;height:220px;
-border-radius:50%;
-border:4px solid cyan;
-margin:auto;
-position:relative;
-box-shadow:0 0 30px cyan;
-}
-
-.number{position:absolute;color:#00f5ff;transform:translate(-50%,-50%)}
-.hand{position:absolute;top:50%;left:50%;transform-origin:50% 100%}
-
-.hour{width:6px;height:60px;background:white}
-.minute{width:4px;height:80px;background:#00f5ff}
-.second{width:2px;height:90px;background:red}
-
-.center{
-width:10px;height:10px;background:#00f5ff;
-border-radius:50%;
-position:absolute;
-top:50%;left:50%;
-transform:translate(-50%,-50%);
-}
-
-.temp{font-size:45px;color:orange}
-.icon{font-size:60px}
-
-input,button{
+textarea,input,button{
+width:90%;
 padding:10px;
 margin:5px;
-width:90%;
-border:none;
 border-radius:10px;
+border:none;
 }
 
 button{
@@ -77,130 +49,38 @@ font-size:13px;
 
 <body>
 
-<h2>🚀 DD LIVE DASHBOARD PRO</h2>
+<h2>🚀 AI RECOVERY WHATSAPP SYSTEM</h2>
 
-<!-- CLOCK -->
 <div class="card">
-<div class="clock" id="clock"></div>
-<div id="time"></div>
-<div id="day"></div>
-<div id="date"></div>
-</div>
 
-<!-- WEATHER -->
-<div class="card">
-<div class="temp" id="temp">--°C</div>
-<div class="icon" id="icon">⛅</div>
-<div id="desc">Detecting location...</div>
-<div>💧 <span id="humidity">--</span>%</div>
-<div>🌬 <span id="wind">--</span> km/h</div>
-</div>
+<textarea id="data" rows="6" placeholder="Enter:
+Name,Number
+Deepak,9999999999
+Rameswari,8888888888"></textarea>
 
-<!-- MESSAGE -->
-<div class="card">
-<input id="name" placeholder="Customer Name" oninput="updatePreview()">
-<input id="number" placeholder="Mobile Number">
+<button onclick="start()">📲 Start Sending</button>
 
-<button onclick="sendMsg()">📲 Send WhatsApp</button>
+<div class="preview" id="status">Status: Waiting...</div>
 
-<div class="preview" id="preview"></div>
 </div>
 
 <script>
 
-/* DOM */
-const temp = document.getElementById("temp");
-const desc = document.getElementById("desc");
-const humidity = document.getElementById("humidity");
-const wind = document.getElementById("wind");
-const icon = document.getElementById("icon");
-const preview = document.getElementById("preview");
+let index = 0;
+let users = [];
 
-/* CLOCK */
-const clock=document.getElementById("clock");
-
-for(let i=1;i<=12;i++){
-let a=(i*30-90)*Math.PI/180;
-let x=50+40*Math.cos(a);
-let y=50+40*Math.sin(a);
-
-let n=document.createElement("div");
-n.className="number";
-n.style.left=x+"%";
-n.style.top=y+"%";
-n.innerText=i;
-clock.appendChild(n);
+/* AI PREFIX */
+function getPrefix(name){
+name = name.toLowerCase();
+return (name.endsWith("a") || name.endsWith("i")) ? "Mrs." : "Mr.";
 }
 
-clock.innerHTML+=`
-<div class="hand hour" id="h"></div>
-<div class="hand minute" id="m"></div>
-<div class="hand second" id="s"></div>
-<div class="center"></div>
-`;
+/* 🔥 SAME RECOVERY MESSAGE (UNCHANGED) */
+function getMessage(name){
 
-function updateClock(){
-let d=new Date();
+let prefix = getPrefix(name);
 
-document.getElementById("h").style.transform=
-`translate(-50%,-100%) rotate(${(d.getHours()%12)*30}deg)`;
-
-document.getElementById("m").style.transform=
-`translate(-50%,-100%) rotate(${d.getMinutes()*6}deg)`;
-
-document.getElementById("s").style.transform=
-`translate(-50%,-100%) rotate(${d.getSeconds()*6}deg)`;
-
-document.getElementById("time").innerText=d.toLocaleTimeString();
-document.getElementById("day").innerText=d.toLocaleDateString("en-IN",{weekday:'long'});
-document.getElementById("date").innerText=d.toLocaleDateString();
-}
-setInterval(updateClock,1000);
-updateClock();
-
-/* 🌍 LIVE WEATHER (NO API KEY) */
-function getWeather(){
-
-navigator.geolocation.getCurrentPosition(async (pos)=>{
-
-let lat = pos.coords.latitude;
-let lon = pos.coords.longitude;
-
-let url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`;
-
-let res = await fetch(url);
-let data = await res.json();
-
-let w = data.current_weather;
-
-temp.innerText = w.temperature + "°C";
-wind.innerText = w.windspeed;
-desc.innerText = "Live Weather";
-
-let code = w.weathercode;
-
-if(code === 0) icon.innerText="☀️";
-else if(code <= 3) icon.innerText="☁️";
-else if(code <= 48) icon.innerText="🌫️";
-else if(code <= 67) icon.innerText="🌧️";
-else if(code <= 77) icon.innerText="❄️";
-else icon.innerText="⛈️";
-
-});
-
-}
-
-getWeather();
-setInterval(getWeather,60000);
-
-/* MESSAGE */
-function getMsg(name){
-
-if(!name || name.trim()===""){
-name="Customer";
-}
-
-return `Dear Mrs. Rameswari Ji,
+return `Dear ${prefix} ${name} Ji,
 
 मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
 आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।
@@ -216,32 +96,56 @@ Deepak Dabi
 Airtel AirFiber Recovery Advisor`;
 }
 
-/* PREVIEW */
-function updatePreview(){
-let name=document.getElementById("name").value;
-preview.innerText=getMsg(name);
+function start(){
+
+let raw = document.getElementById("data").value.trim();
+
+if(!raw){
+alert("Enter data");
+return;
 }
-updatePreview();
 
-/* WHATSAPP SEND FIXED */
-function sendMsg(){
+users = raw.split("\n").map(line=>{
+let parts = line.split(",");
+return {
+name: parts[0].trim(),
+number: parts[1].trim()
+};
+});
 
-let name=document.getElementById("name").value;
-let number=document.getElementById("number").value;
+index = 0;
+sendNext();
+}
 
+function sendNext(){
+
+if(index >= users.length){
+document.getElementById("status").innerText = "✅ Completed!";
+return;
+}
+
+let user = users[index];
+
+let number = user.number;
 if(!number.startsWith("91")){
-number="91"+number;
+number = "91" + number;
 }
 
-let message = getMsg(name);
+let message = getMessage(user.name);
 
 let url = "https://api.whatsapp.com/send?phone="
 + number
 + "&text="
 + encodeURIComponent(message);
 
-window.open(url,"_blank");
+document.getElementById("status").innerText =
+`Sending ${index+1}/${users.length} → ${user.name}`;
 
+window.open(url, "_blank");
+
+index++;
+
+setTimeout(sendNext, 4000);
 }
 
 </script>
