@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deepak Dabi Recovery CRM</title>
+<title>Deepak Dabi PRO CRM</title>
 
 <style>
 body{
@@ -14,130 +14,247 @@ font-family:Arial;
 text-align:center;
 }
 
-h2{
-color:#00f5ff;
-margin-top:15px;
-}
+h2{color:#00f5ff;}
 
 .card{
 background:rgba(255,255,255,0.05);
-margin:15px;
+margin:10px;
 padding:15px;
 border-radius:15px;
-box-shadow:0 0 20px rgba(0,255,255,0.2);
 }
 
-input{
+input,select{
 width:90%;
-padding:12px;
-margin:8px;
+padding:10px;
+margin:6px;
 border:none;
 border-radius:10px;
-outline:none;
 }
 
 button{
 width:92%;
-padding:12px;
-margin-top:10px;
+padding:10px;
+margin:5px;
 border:none;
 border-radius:10px;
-background:linear-gradient(90deg,green,lightgreen);
 font-weight:bold;
-cursor:pointer;
 }
 
-.preview{
-background:#001f2f;
-padding:10px;
-margin-top:10px;
-border-radius:10px;
-white-space:pre-line;
-text-align:left;
-font-size:13px;
-}
+#list{text-align:left;font-size:13px;}
 </style>
 </head>
 
 <body>
 
-<h2>🚀 Recovery CRM System</h2>
+<h2>🚀 Deepak Dabi PRO CRM</h2>
 
 <div class="card">
 
-<input id="name" placeholder="Customer Name" oninput="updatePreview()">
+<select id="prefix">
+<option>Mr.</option>
+<option>Mrs.</option>
+<option>Ms.</option>
+</select>
+
+<input id="name" placeholder="Customer Name">
 <input id="number" placeholder="Mobile Number">
 
-<button onclick="sendMsg()">📲 Send WhatsApp</button>
+<button onclick="sendBefore()">📦 Before Recovery</button>
+<button onclick="sendDone()">✅ Recovery Done</button>
 
-<div class="preview" id="preview"></div>
+<button onclick="sendBeforeSMS()">📩 Before SMS</button>
+<button onclick="sendDoneSMS()">📩 Done SMS</button>
 
+</div>
+
+<div class="card">
+<h3>📊 Dashboard</h3>
+<p>Total: <span id="total">0</span></p>
+<p>Pending: <span id="pending">0</span></p>
+<p>Done: <span id="done">0</span></p>
+</div>
+
+<div class="card">
+<input id="search" placeholder="🔍 Search..." oninput="loadList()">
+
+<select id="filter" onchange="loadList()">
+<option value="all">All</option>
+<option value="today">Today</option>
+<option value="pending">Pending</option>
+<option value="done">Done</option>
+</select>
+</div>
+
+<div class="card">
+<h3>📋 Customers</h3>
+<div id="list"></div>
+</div>
+
+<div class="card">
+<h3>📊 Graph</h3>
+<canvas id="chart" height="150"></canvas>
 </div>
 
 <script>
 
-/* SAFE MESSAGE GENERATOR */
-function getMessage(name){
+/* SAVE */
+function saveCustomer(name,number){
+let data=JSON.parse(localStorage.getItem("crm")||"[]");
 
-if(!name || name.trim()===""){
-name="Customer";
+data.push({
+name:name,
+number:number,
+status:"Pending",
+date:new Date().toLocaleString()
+});
+
+localStorage.setItem("crm",JSON.stringify(data));
+updateDashboard();
+loadList();
 }
 
-let prefix = (name.toLowerCase().endsWith("a") || name.toLowerCase().endsWith("i"))
-? "Mrs."
-: "Mr.";
-
-return `Dear ${prefix} ${name} Ji,
-
-मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
-आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।
-
-कृपया device ready रखें 🙏
-Kindly share your current location for smooth coordination.
-
-Device return न करने की स्थिति में Airtel द्वारा penalty charges लग सकते हैं।
-
-धन्यवाद,
-Deepak Dabi
-📞 9521393991
-Airtel AirFiber Recovery Advisor`;
-}
-
-/* PREVIEW */
-function updatePreview(){
-let name=document.getElementById("name").value;
-document.getElementById("preview").innerText=getMessage(name);
-}
-updatePreview();
-
-/* SEND WHATSAPP */
-function sendMsg(){
-
-let name=document.getElementById("name").value;
+/* BEFORE MSG */
+function sendBefore(){
+let name=document.getElementById("name").value||"Customer";
 let number=document.getElementById("number").value;
+let prefix=document.getElementById("prefix").value;
 
-if(!name || name.trim()===""){
-name="Customer";
+if(!/^[0-9]{10}$/.test(number)){alert("Invalid");return;}
+
+saveCustomer(name,number);
+
+let msg=`Dear ${prefix} ${name} Ji,
+
+Airtel AirFiber device collect karna hai.
+
+📍 Location bheje:
+https://your-site.com/track.html
+
+- Deepak Dabi 9521393991`;
+
+window.open("https://wa.me/91"+number+"?text="+encodeURIComponent(msg));
 }
 
-if(!number){
-alert("Please enter number");
-return;
+/* DONE MSG */
+function sendDone(){
+let name=document.getElementById("name").value||"Customer";
+let number=document.getElementById("number").value;
+let prefix=document.getElementById("prefix").value;
+
+if(!/^[0-9]{10}$/.test(number)){alert("Invalid");return;}
+
+let data=JSON.parse(localStorage.getItem("crm")||"[]");
+data[data.length-1].status="Done";
+localStorage.setItem("crm",JSON.stringify(data));
+
+updateDashboard();
+loadList();
+
+let msg=`Dear ${prefix} ${name} Ji,
+
+✅ Device collect ho gaya hai.
+
+Dhanyavad 🙏
+Deepak Dabi`;
+
+window.open("https://wa.me/91"+number+"?text="+encodeURIComponent(msg));
 }
 
-if(!number.startsWith("91")){
-number="91"+number;
+/* SMS */
+function sendBeforeSMS(){
+let number=document.getElementById("number").value;
+let msg="Airtel device collect karna hai. Location bheje.";
+window.location.href=`sms:${number}?body=${encodeURIComponent(msg)}`;
 }
 
-let message = getMessage(name);
-
-let url = "https://api.whatsapp.com/send?phone="
-+ number
-+ "&text="
-+ encodeURIComponent(message);
-
-window.open(url,"_blank");
+function sendDoneSMS(){
+let number=document.getElementById("number").value;
+let msg="Device collect ho gaya hai. Thanks.";
+window.location.href=`sms:${number}?body=${encodeURIComponent(msg)}`;
 }
+
+/* DASHBOARD */
+function updateDashboard(){
+let data=JSON.parse(localStorage.getItem("crm")||"[]");
+
+document.getElementById("total").innerText=data.length;
+document.getElementById("pending").innerText=data.filter(c=>c.status==="Pending").length;
+document.getElementById("done").innerText=data.filter(c=>c.status==="Done").length;
+}
+
+/* LIST */
+function loadList(){
+let data=JSON.parse(localStorage.getItem("crm")||"[]");
+
+let search=document.getElementById("search").value.toLowerCase();
+let filter=document.getElementById("filter").value;
+let today=new Date().toLocaleDateString();
+
+let html="";
+
+data.forEach((c,i)=>{
+
+if(search && !c.name.toLowerCase().includes(search) && !c.number.includes(search)) return;
+
+if(filter==="today" && !c.date.includes(today)) return;
+if(filter==="pending" && c.status!=="Pending") return;
+if(filter==="done" && c.status!=="Done") return;
+
+html+=`
+<div style="background:#111;padding:10px;margin:5px;border-radius:10px">
+<b>${c.name}</b> (${c.number})<br>
+Status: ${c.status}<br>
+Date: ${c.date}<br>
+<button onclick="markDone(${i})">Done</button>
+<button onclick="deleteUser(${i})">Delete</button>
+</div>`;
+});
+
+document.getElementById("list").innerHTML=html;
+
+drawGraph();
+}
+
+/* DONE */
+function markDone(i){
+let data=JSON.parse(localStorage.getItem("crm"));
+data[i].status="Done";
+localStorage.setItem("crm",JSON.stringify(data));
+updateDashboard();
+loadList();
+}
+
+/* DELETE */
+function deleteUser(i){
+let data=JSON.parse(localStorage.getItem("crm"));
+data.splice(i,1);
+localStorage.setItem("crm",JSON.stringify(data));
+updateDashboard();
+loadList();
+}
+
+/* GRAPH */
+function drawGraph(){
+let data=JSON.parse(localStorage.getItem("crm")||"[]");
+
+let p=data.filter(c=>c.status==="Pending").length;
+let d=data.filter(c=>c.status==="Done").length;
+
+let c=document.getElementById("chart");
+let ctx=c.getContext("2d");
+
+ctx.clearRect(0,0,c.width,c.height);
+
+ctx.fillRect(50,150-(p*20),50,p*20);
+ctx.fillText("Pending",50,140);
+
+ctx.fillRect(150,150-(d*20),50,d*20);
+ctx.fillText("Done",150,140);
+}
+
+/* INIT */
+updateDashboard();
+loadList();
 
 </script>
 
