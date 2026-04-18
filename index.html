@@ -6,41 +6,12 @@
 <title>Deepak Dabi PRO CRM</title>
 
 <style>
-body{
-margin:0;
-background:#0b0f1a;
-color:white;
-font-family:Arial;
-text-align:center;
-}
-
-h2{color:#00f5ff;}
-
-.card{
-background:rgba(255,255,255,0.05);
-margin:10px;
-padding:15px;
-border-radius:15px;
-}
-
-input,select{
-width:90%;
-padding:10px;
-margin:6px;
-border:none;
-border-radius:10px;
-}
-
-button{
-width:92%;
-padding:10px;
-margin:5px;
-border:none;
-border-radius:10px;
-font-weight:bold;
-}
-
+body{margin:0;background:#0b0f1a;color:white;font-family:Arial;text-align:center;}
+.card{background:rgba(255,255,255,0.05);margin:10px;padding:15px;border-radius:15px;}
+input,select{width:90%;padding:10px;margin:6px;border:none;border-radius:10px;}
+button{width:92%;padding:10px;margin:5px;border:none;border-radius:10px;font-weight:bold;}
 #list{text-align:left;font-size:13px;}
+a{color:#00f5ff;}
 </style>
 </head>
 
@@ -49,7 +20,6 @@ font-weight:bold;
 <h2>🚀 Deepak Dabi PRO CRM</h2>
 
 <div class="card">
-
 <select id="prefix">
 <option>Mr.</option>
 <option>Mrs.</option>
@@ -61,10 +31,6 @@ font-weight:bold;
 
 <button onclick="sendBefore()">📦 Before Recovery</button>
 <button onclick="sendDone()">✅ Recovery Done</button>
-
-<button onclick="sendBeforeSMS()">📩 Before SMS</button>
-<button onclick="sendDoneSMS()">📩 Done SMS</button>
-
 </div>
 
 <div class="card">
@@ -75,76 +41,61 @@ font-weight:bold;
 </div>
 
 <div class="card">
-<input id="search" placeholder="🔍 Search..." oninput="loadList()">
-
-<select id="filter" onchange="loadList()">
-<option value="all">All</option>
-<option value="today">Today</option>
-<option value="pending">Pending</option>
-<option value="done">Done</option>
-</select>
-</div>
-
-<div class="card">
 <h3>📋 Customers</h3>
 <div id="list"></div>
 </div>
 
-<div class="card">
-<h3>📊 Graph</h3>
-<canvas id="chart" height="150"></canvas>
+<div class="card" id="locationBox" style="display:none;">
+<h3>📍 Share Location</h3>
+<button onclick="getLocation()">Share Location</button>
+<p id="status"></p>
 </div>
 
 <script>
 
-/* SAVE */
+/* ====== CRM PART ====== */
+
 function saveCustomer(name,number){
 let data=JSON.parse(localStorage.getItem("crm")||"[]");
-
-data.push({
-name:name,
-number:number,
-status:"Pending",
-date:new Date().toLocaleString()
-});
-
+data.push({name,number,status:"Pending",date:new Date().toLocaleString()});
 localStorage.setItem("crm",JSON.stringify(data));
 updateDashboard();
 loadList();
 }
 
-/* BEFORE MSG */
 function sendBefore(){
-let name=document.getElementById("name").value||"Customer";
-let number=document.getElementById("number").value;
+let name=nameInput();
+let number=numInput();
 let prefix=document.getElementById("prefix").value;
 
-if(!/^[0-9]{10}$/.test(number)){alert("Invalid");return;}
+if(!number) return;
 
 saveCustomer(name,number);
+
+/* UNIQUE LINK */
+let link = location.href.split("#")[0] + "#track";
 
 let msg=`Dear ${prefix} ${name} Ji,
 
 Airtel AirFiber device collect karna hai.
 
 📍 Location bheje:
-https://your-site.com/track.html
+${link}
 
 - Deepak Dabi 9521393991`;
 
-window.open("https://wa.me/91"+number+"?text="+encodeURIComponent(msg));
+openWA(number,msg);
 }
 
-/* DONE MSG */
 function sendDone(){
-let name=document.getElementById("name").value||"Customer";
-let number=document.getElementById("number").value;
+let name=nameInput();
+let number=numInput();
 let prefix=document.getElementById("prefix").value;
 
-if(!/^[0-9]{10}$/.test(number)){alert("Invalid");return;}
+if(!number) return;
 
 let data=JSON.parse(localStorage.getItem("crm")||"[]");
-data[data.length-1].status="Done";
+if(data.length>0) data[data.length-1].status="Done";
 localStorage.setItem("crm",JSON.stringify(data));
 
 updateDashboard();
@@ -152,70 +103,51 @@ loadList();
 
 let msg=`Dear ${prefix} ${name} Ji,
 
-✅ Device collect ho gaya hai.
+✅ Device successfully collect ho gaya hai.
 
 Dhanyavad 🙏
 Deepak Dabi`;
 
+openWA(number,msg);
+}
+
+function openWA(number,msg){
 window.open("https://wa.me/91"+number+"?text="+encodeURIComponent(msg));
 }
 
-/* SMS */
-function sendBeforeSMS(){
-let number=document.getElementById("number").value;
-let msg="Airtel device collect karna hai. Location bheje.";
-window.location.href=`sms:${number}?body=${encodeURIComponent(msg)}`;
+function nameInput(){
+return document.getElementById("name").value||"Customer";
 }
 
-function sendDoneSMS(){
-let number=document.getElementById("number").value;
-let msg="Device collect ho gaya hai. Thanks.";
-window.location.href=`sms:${number}?body=${encodeURIComponent(msg)}`;
+function numInput(){
+let n=document.getElementById("number").value;
+if(!/^[0-9]{10}$/.test(n)){alert("Invalid number");return null;}
+return n;
 }
 
-/* DASHBOARD */
 function updateDashboard(){
 let data=JSON.parse(localStorage.getItem("crm")||"[]");
-
 document.getElementById("total").innerText=data.length;
 document.getElementById("pending").innerText=data.filter(c=>c.status==="Pending").length;
 document.getElementById("done").innerText=data.filter(c=>c.status==="Done").length;
 }
 
-/* LIST */
 function loadList(){
 let data=JSON.parse(localStorage.getItem("crm")||"[]");
-
-let search=document.getElementById("search").value.toLowerCase();
-let filter=document.getElementById("filter").value;
-let today=new Date().toLocaleDateString();
-
 let html="";
 
 data.forEach((c,i)=>{
-
-if(search && !c.name.toLowerCase().includes(search) && !c.number.includes(search)) return;
-
-if(filter==="today" && !c.date.includes(today)) return;
-if(filter==="pending" && c.status!=="Pending") return;
-if(filter==="done" && c.status!=="Done") return;
-
 html+=`
 <div style="background:#111;padding:10px;margin:5px;border-radius:10px">
 <b>${c.name}</b> (${c.number})<br>
-Status: ${c.status}<br>
-Date: ${c.date}<br>
+${c.status}<br>
 <button onclick="markDone(${i})">Done</button>
-<button onclick="deleteUser(${i})">Delete</button>
 </div>`;
 });
 
 document.getElementById("list").innerHTML=html;
-
-drawGraph();
 }
 
-/* DONE */
 function markDone(i){
 let data=JSON.parse(localStorage.getItem("crm"));
 data[i].status="Done";
@@ -224,32 +156,46 @@ updateDashboard();
 loadList();
 }
 
-/* DELETE */
-function deleteUser(i){
-let data=JSON.parse(localStorage.getItem("crm"));
-data.splice(i,1);
-localStorage.setItem("crm",JSON.stringify(data));
-updateDashboard();
-loadList();
+/* ====== LOCATION PART ====== */
+
+if(location.hash === "#track"){
+document.getElementById("locationBox").style.display="block";
 }
 
-/* GRAPH */
-function drawGraph(){
-let data=JSON.parse(localStorage.getItem("crm")||"[]");
+function getLocation(){
 
-let p=data.filter(c=>c.status==="Pending").length;
-let d=data.filter(c=>c.status==="Done").length;
+if(!navigator.geolocation){
+document.getElementById("status").innerText="❌ Not supported";
+return;
+}
 
-let c=document.getElementById("chart");
-let ctx=c.getContext("2d");
+document.getElementById("status").innerText="📡 Getting location...";
 
-ctx.clearRect(0,0,c.width,c.height);
+navigator.geolocation.getCurrentPosition(
 
-ctx.fillRect(50,150-(p*20),50,p*20);
-ctx.fillText("Pending",50,140);
+function(pos){
 
-ctx.fillRect(150,150-(d*20),50,d*20);
-ctx.fillText("Done",150,140);
+let lat=pos.coords.latitude;
+let lon=pos.coords.longitude;
+
+let map=`https://maps.google.com/?q=${lat},${lon}`;
+
+document.getElementById("status").innerHTML=
+"✅ Location received<br><br><a href='"+map+"' target='_blank'>Open Map</a>";
+
+/* SAVE (optional) */
+let loc=JSON.parse(localStorage.getItem("locations")||"[]");
+loc.push({lat,lon,time:new Date().toLocaleString()});
+localStorage.setItem("locations",JSON.stringify(loc));
+
+},
+
+function(){
+document.getElementById("status").innerText="❌ Permission denied";
+}
+
+);
+
 }
 
 /* INIT */
