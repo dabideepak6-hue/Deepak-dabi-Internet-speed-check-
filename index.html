@@ -1,248 +1,87 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Deepak Dabi PRO CRM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ultra AI Generator</title>
 
 <style>
-
 body{
-margin:0;
-font-family:Arial;
-background:#070b14;
+background:#020617;
 color:white;
+font-family:Arial;
 text-align:center;
+margin:0;
 }
 
-/* 🔥 Banner Image */
-.banner{
-width:100%;
-height:200px;
-background:url('your-image.jpg') center/cover no-repeat;
-box-shadow:0 0 25px #00f5ff;
-}
-
-/* 🔥 Glass Neon Card */
 .card{
 margin:12px;
 padding:15px;
 border-radius:15px;
 background:rgba(0,0,0,0.6);
-box-shadow:0 0 15px rgba(0,255,255,0.3);
-backdrop-filter:blur(10px);
+box-shadow:0 0 20px #00f5ff;
 }
 
-/* Inputs */
-input,select{
+input,button{
 width:90%;
 padding:12px;
-margin:6px;
+margin:5px;
 border:none;
 border-radius:10px;
-background:#0f172a;
-color:white;
-outline:none;
-box-shadow:0 0 5px #00f5ff;
 }
 
-/* Buttons */
 button{
-width:92%;
-padding:12px;
-margin:6px;
-border:none;
-border-radius:10px;
+background:linear-gradient(45deg,#00f5ff,#00ff9d);
 font-weight:bold;
-cursor:pointer;
-}
-
-/* Neon Buttons */
-.btn1{
-background:linear-gradient(45deg,#ff9800,#ff5722);
-box-shadow:0 0 10px #ff9800;
-color:white;
-}
-
-.btn2{
-background:linear-gradient(45deg,#00ff9d,#00e5ff);
-box-shadow:0 0 10px #00e5ff;
 color:black;
 }
 
-/* Dashboard */
-.stats{
-display:flex;
-justify-content:space-around;
-}
-
-.stat{
-background:#0f172a;
-padding:10px;
+img{
+width:95%;
+margin-top:10px;
 border-radius:10px;
-width:30%;
-box-shadow:0 0 10px #00f5ff;
+box-shadow:0 0 25px #00f5ff;
 }
-
-/* Customer List */
-#list div{
-background:#0f172a;
-margin:5px;
-padding:10px;
-border-radius:10px;
-box-shadow:0 0 5px #00f5ff;
-}
-
-a{color:#00f5ff;}
-
 </style>
 </head>
 
 <body>
 
-<!-- 🔥 Banner -->
-<div class="banner"></div>
-
-<h2>🚀 Deepak Dabi PRO CRM</h2>
+<h2>⚡ Ultra AI Image Generator</h2>
 
 <div class="card">
-
-<select id="prefix">
-<option>Mr.</option>
-<option>Mrs.</option>
-<option>Ms.</option>
-</select>
-
-<input id="name" placeholder="Customer Name">
-<input id="number" placeholder="Mobile Number">
-
-<button class="btn1" onclick="sendBefore()">📦 Before Recovery</button>
-<button class="btn2" onclick="sendDone()">✅ Recovery Done</button>
-
+<input id="prompt" placeholder="Type your idea (e.g. Hanuman neon 4K)">
+<input id="token" placeholder="(Optional) HuggingFace Token">
+<button onclick="generate()">🚀 Generate</button>
 </div>
 
 <div class="card">
-<h3>📊 Dashboard</h3>
-
-<div class="stats">
-<div class="stat">Total<br><span id="total">0</span></div>
-<div class="stat">Pending<br><span id="pending">0</span></div>
-<div class="stat">Done<br><span id="done">0</span></div>
-</div>
-
-</div>
-
-<div class="card">
-<h3>📋 Customers</h3>
-<div id="list"></div>
-</div>
-
-<div class="card" id="locationBox" style="display:none;">
-<h3>📍 Share Location</h3>
-<button onclick="getLocation()">Share Location</button>
 <p id="status"></p>
+<img id="result">
 </div>
 
 <script>
 
-/* SAVE CUSTOMER */
-function saveCustomer(name,number,id){
-let data=JSON.parse(localStorage.getItem("crm")||"[]");
-data.push({id,name,number,status:"Pending",date:new Date().toLocaleString()});
-localStorage.setItem("crm",JSON.stringify(data));
-}
+async function generate(){
 
-/* BEFORE */
-function sendBefore(){
-let name=document.getElementById("name").value||"Customer";
-let number=document.getElementById("number").value;
-let prefix=document.getElementById("prefix").value;
+let prompt=document.getElementById("prompt").value;
+let token=document.getElementById("token").value;
 
-if(!/^[0-9]{10}$/.test(number)){
-alert("Invalid number");
+if(!prompt){
+alert("Enter prompt");
 return;
 }
 
-let id=Date.now();
-let link=location.href.split("#")[0]+"#track_"+id;
+let status=document.getElementById("status");
+let img=document.getElementById("result");
 
-saveCustomer(name,number,id);
-updateDashboard();
-loadList();
+status.innerText="⚡ Generating ultra image...";
+img.src="";
 
-let msg=`Dear ${prefix} ${name} Ji,
-
-Airtel AirFiber device collect karna hai.
-
-📍 Location bheje:
-${link}
-
-- Deepak Dabi`;
-
-window.open("https://wa.me/91"+number+"?text="+encodeURIComponent(msg));
-
-document.getElementById("name").value="";
-document.getElementById("number").value="";
-}
-
-/* DONE */
-function sendDone(){
-
-let data=JSON.parse(localStorage.getItem("crm")||"[]");
-if(data.length>0) data[data.length-1].status="Done";
-
-localStorage.setItem("crm",JSON.stringify(data));
-
-updateDashboard();
-loadList();
-
-}
-
-/* DASHBOARD */
-function updateDashboard(){
-let data=JSON.parse(localStorage.getItem("crm")||"[]");
-
-document.getElementById("total").innerText=data.length;
-document.getElementById("pending").innerText=data.filter(x=>x.status==="Pending").length;
-document.getElementById("done").innerText=data.filter(x=>x.status==="Done").length;
-}
-
-/* LIST */
-function loadList(){
-let data=JSON.parse(localStorage.getItem("crm")||"[]");
-let html="";
-
-data.forEach((c,i)=>{
-html+=`
-<div>
-<b>${c.name}</b> (${c.number})<br>
-${c.status}<br>
-
-<button onclick="markDone(${i})">✅ Done</button>
-<button onclick="deleteCustomer(${i})">❌ Delete</button>
-<button onclick="viewLocation(${i})">📍 Location</button>
-
-</div>`;
-});
-
-document.getElementById("list").innerHTML=html;
-}
-
-/* ACTIONS */
-function markDone(i){
-let data=JSON.parse(localStorage.getItem("crm"));
-data[i].status="Done";
-localStorage.setItem("crm",JSON.stringify(data));
-updateDashboard();
-loadList();
-}
-
-function deleteCustomer(i){
-let data=JSON.parse(localStorage.getItem("crm"));
-data.splice(i,1);
-localStorage.setItem("crm",JSON.stringify(data));
-updateDashboard();
-loadList();
-}
-
-/* LOCATION
+/* FAST MODEL */
+let response = await fetch(
+"https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo",
+{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization
