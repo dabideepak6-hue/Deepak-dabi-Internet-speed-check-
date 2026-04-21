@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Ultra AI Generator</title>
+<title>Deepak AI Generator PRO</title>
 
 <style>
 body{
@@ -46,12 +46,12 @@ box-shadow:0 0 25px #00f5ff;
 
 <body>
 
-<h2>⚡ Ultra AI Image Generator</h2>
+<h2>⚡ AI Image Generator PRO</h2>
 
 <div class="card">
-<input id="prompt" placeholder="Type your idea (e.g. Hanuman neon 4K)">
-<input id="token" placeholder="(Optional) HuggingFace Token">
-<button onclick="generate()">🚀 Generate</button>
+<input id="prompt" placeholder="Type: Hanuman ji">
+<button onclick="improvePrompt()">✨ Auto Improve Prompt</button>
+<button onclick="generate()">🚀 Generate Image</button>
 </div>
 
 <div class="card">
@@ -61,27 +61,84 @@ box-shadow:0 0 25px #00f5ff;
 
 <script>
 
-async function generate(){
+/* 🔥 PROMPT IMPROVER */
+function improvePrompt(){
 
-let prompt=document.getElementById("prompt").value;
-let token=document.getElementById("token").value;
+let input = document.getElementById("prompt");
+let p = input.value.toLowerCase();
+
+if(!p){
+alert("Enter prompt first");
+return;
+}
+
+/* Smart Enhancer */
+let improved = p;
+
+/* Add style */
+if(!p.includes("4k")) improved += ", 4K ultra HD";
+if(!p.includes("detailed")) improved += ", highly detailed";
+if(!p.includes("cinematic")) improved += ", cinematic lighting";
+if(!p.includes("realistic")) improved += ", ultra realistic";
+if(!p.includes("sharp")) improved += ", sharp focus";
+
+/* Theme detection */
+if(p.includes("hanuman")){
+improved += ", divine aura, glowing orange light, hindu god, epic background";
+}
+
+if(p.includes("krishna")){
+improved += ", golden aura, flute, peacock feather, divine lighting";
+}
+
+if(p.includes("lion")){
+improved += ", fire aura, powerful, fantasy epic style";
+}
+
+if(p.includes("city")){
+improved += ", cyberpunk neon lights, night scene, futuristic";
+}
+
+/* Final polish */
+improved += ", masterpiece, trending on artstation, 8K wallpaper";
+
+/* Update input */
+input.value = improved;
+
+}
+
+/* 🔥 GENERATE IMAGE */
+function generate(){
+
+let prompt = document.getElementById("prompt").value;
+let img = document.getElementById("result");
+let status = document.getElementById("status");
 
 if(!prompt){
 alert("Enter prompt");
 return;
 }
 
-let status=document.getElementById("status");
-let img=document.getElementById("result");
-
-status.innerText="⚡ Generating ultra image...";
+status.innerText="⚡ Generating...";
 img.src="";
 
-/* FAST MODEL */
-let response = await fetch(
-"https://api-inference.huggingface.co/models/stabilityai/sdxl-turbo",
-{
-method:"POST",
-headers:{
-"Content-Type":"application/json",
-"Authorization
+/* FREE AI IMAGE */
+let url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt);
+url += "?seed=" + Math.floor(Math.random()*100000);
+
+img.src = url;
+
+img.onload = ()=>{
+status.innerText="✅ Image Ready";
+}
+
+img.onerror = ()=>{
+status.innerText="❌ Try different prompt";
+}
+
+}
+
+</script>
+
+</body>
+</html>
