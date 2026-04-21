@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deepak AI Generator PRO</title>
+<title>AI Bhajan Creator</title>
 
 <style>
 body{
@@ -21,7 +21,7 @@ background:rgba(0,0,0,0.6);
 box-shadow:0 0 20px #00f5ff;
 }
 
-input,button{
+input,select,button,textarea{
 width:90%;
 padding:12px;
 margin:5px;
@@ -35,107 +35,140 @@ font-weight:bold;
 color:black;
 }
 
-img{
-width:95%;
+textarea{
+height:120px;
+}
+
+audio{
+width:90%;
 margin-top:10px;
-border-radius:10px;
-box-shadow:0 0 25px #00f5ff;
 }
 </style>
 </head>
 
 <body>
 
-<h2>⚡ AI Image Generator PRO</h2>
+<h2>🙏 AI Bhajan Creator</h2>
 
 <div class="card">
-<input id="prompt" placeholder="Type: Hanuman ji">
-<button onclick="improvePrompt()">✨ Auto Improve Prompt</button>
-<button onclick="generate()">🚀 Generate Image</button>
+<input id="topic" placeholder="Bhajan topic (Hanuman, Krishna, Shiv)">
+<select id="style">
+<option>Bhajan</option>
+<option>Aarti</option>
+<option>Chalisa Style</option>
+</select>
+
+<button onclick="generate()">✨ Generate Bhajan</button>
 </div>
 
 <div class="card">
-<p id="status"></p>
-<img id="result">
+<textarea id="lyrics" placeholder="Lyrics will appear..."></textarea>
+
+<button onclick="play()">🎤 Play Voice</button>
+<button onclick="stop()">⏹ Stop</button>
+
+<audio id="music" loop>
+<source src="https://cdn.pixabay.com/audio/2022/03/15/audio_7c8f8cdb42.mp3">
+</audio>
+
+</div>
+
+<div class="card">
+<h3>📢 YouTube Pack</h3>
+<textarea id="title"></textarea>
+<textarea id="desc"></textarea>
+<textarea id="tags"></textarea>
+
+<button onclick="copy('title')">Copy Title</button>
+<button onclick="copy('desc')">Copy Description</button>
+<button onclick="copy('tags')">Copy Tags</button>
 </div>
 
 <script>
 
-/* 🔥 PROMPT IMPROVER */
-function improvePrompt(){
+let synth = window.speechSynthesis;
+let utter;
 
-let input = document.getElementById("prompt");
-let p = input.value.toLowerCase();
-
-if(!p){
-alert("Enter prompt first");
-return;
-}
-
-/* Smart Enhancer */
-let improved = p;
-
-/* Add style */
-if(!p.includes("4k")) improved += ", 4K ultra HD";
-if(!p.includes("detailed")) improved += ", highly detailed";
-if(!p.includes("cinematic")) improved += ", cinematic lighting";
-if(!p.includes("realistic")) improved += ", ultra realistic";
-if(!p.includes("sharp")) improved += ", sharp focus";
-
-/* Theme detection */
-if(p.includes("hanuman")){
-improved += ", divine aura, glowing orange light, hindu god, epic background";
-}
-
-if(p.includes("krishna")){
-improved += ", golden aura, flute, peacock feather, divine lighting";
-}
-
-if(p.includes("lion")){
-improved += ", fire aura, powerful, fantasy epic style";
-}
-
-if(p.includes("city")){
-improved += ", cyberpunk neon lights, night scene, futuristic";
-}
-
-/* Final polish */
-improved += ", masterpiece, trending on artstation, 8K wallpaper";
-
-/* Update input */
-input.value = improved;
-
-}
-
-/* 🔥 GENERATE IMAGE */
+/* GENERATE */
 function generate(){
 
-let prompt = document.getElementById("prompt").value;
-let img = document.getElementById("result");
-let status = document.getElementById("status");
+let topic=document.getElementById("topic").value || "Hanuman";
+let style=document.getElementById("style").value;
 
-if(!prompt){
-alert("Enter prompt");
+/* LYRICS */
+let text=`(${style})
+
+जय ${topic} देव, कृपा करो,
+भक्तों के दुख हर लो,
+तेरी महिमा अपार प्रभु,
+हर दिल में उजियारा भर दो।
+
+(Chorus)
+जय ${topic} जय ${topic},
+तेरा नाम ही सहारा,
+तेरे चरणों में जीवन सारा।
+
+भक्ति की ज्योति जलाओ प्रभु,
+मन में शांति लाओ,
+तेरे नाम का जप करते,
+हर संकट दूर भगाओ।`;
+
+document.getElementById("lyrics").value=text;
+
+/* TITLE */
+document.getElementById("title").value=
+`${topic} Ji Powerful ${style} 🙏 | Dil Se Suno 🔥`;
+
+/* DESC */
+document.getElementById("desc").value=
+`🙏 ${topic} Bhajan 🙏
+
+Is bhajan ko dil se suniye aur kripa paiye.
+Like, Share & Subscribe
+
+#${topic} #Bhajan #Devotional #AIbhajan`;
+
+/* TAGS */
+document.getElementById("tags").value=
+`${topic} bhajan, ${topic} song, devotional song, ai bhajan, hindu bhajan`;
+
+}
+
+/* PLAY VOICE */
+function play(){
+
+let text=document.getElementById("lyrics").value;
+
+if(!text){
+alert("Generate bhajan first");
 return;
 }
 
-status.innerText="⚡ Generating...";
-img.src="";
+/* MUSIC */
+document.getElementById("music").play();
 
-/* FREE AI IMAGE */
-let url = "https://image.pollinations.ai/prompt/" + encodeURIComponent(prompt);
-url += "?seed=" + Math.floor(Math.random()*100000);
+/* VOICE */
+utter = new SpeechSynthesisUtterance(text);
+utter.lang="hi-IN";
+utter.rate=0.85;
+utter.pitch=1.1;
 
-img.src = url;
+synth.speak(utter);
 
-img.onload = ()=>{
-status.innerText="✅ Image Ready";
 }
 
-img.onerror = ()=>{
-status.innerText="❌ Try different prompt";
+/* STOP */
+function stop(){
+synth.cancel();
+document.getElementById("music").pause();
 }
 
+/* COPY */
+function copy(id){
+let t=document.getElementById(id);
+t.select();
+document.execCommand("copy");
+alert("Copied!");
 }
 
 </script>
