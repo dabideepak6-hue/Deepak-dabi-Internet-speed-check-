@@ -2,127 +2,38 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deepak Ultra CRM</title>
+<title>Deepak CRM Tracking</title>
 
 <style>
-*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:Arial;background:#020617;color:white;margin:0;}
+.header{padding:15px;text-align:center;background:#111;}
+.card{margin:10px;padding:15px;background:#111;border-radius:12px;}
 
-body{
-font-family:'Segoe UI',sans-serif;
-background:radial-gradient(circle at top,#020617,#000);
-color:white;
+input,select,button{
+width:100%;padding:10px;margin:5px;border-radius:8px;border:none;
 }
 
-/* HEADER */
-.header{
-padding:15px;
-font-size:20px;
-font-weight:bold;
-text-align:center;
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(15px);
-border-bottom:1px solid rgba(255,255,255,0.1);
-}
+button{background:#00f5ff;color:black;font-weight:bold;}
 
-/* CARD */
-.card{
-margin:12px;
-padding:15px;
-border-radius:18px;
-background:rgba(255,255,255,0.05);
-backdrop-filter:blur(12px);
-box-shadow:0 0 25px rgba(0,255,255,0.15);
-}
-
-/* INPUT */
-input,select{
-width:100%;
-padding:12px;
-margin:6px 0;
-border-radius:10px;
-border:none;
-background:#020617;
-color:white;
-}
-
-/* BUTTON */
-button{
-width:100%;
-padding:12px;
-border:none;
-border-radius:12px;
-font-weight:bold;
-background:linear-gradient(45deg,#00f5ff,#00ff9d);
-color:black;
-margin-top:8px;
-cursor:pointer;
-}
-
-/* CLOCK */
-.clock{
-text-align:center;
-font-size:22px;
-font-weight:bold;
-}
-
-.date{
-font-size:14px;
-opacity:0.8;
-}
-
-/* LIST */
 .item{
-background:#020617;
-padding:12px;
-margin:8px 0;
-border-radius:12px;
-display:flex;
-justify-content:space-between;
+background:#020617;padding:10px;margin:5px;border-radius:10px;
+display:flex;justify-content:space-between;align-items:center;
 }
 
-.actions button{
-width:auto;
-padding:6px 10px;
-font-size:12px;
-}
+.status{font-size:12px;padding:4px 8px;border-radius:6px;}
 
-/* FLOAT BUTTON */
-.fab{
-position:fixed;
-bottom:20px;
-right:20px;
-width:60px;
-height:60px;
-border-radius:50%;
-background:linear-gradient(45deg,#00f5ff,#00ff9d);
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:22px;
-color:black;
-cursor:pointer;
-}
+.pending{background:orange;}
+.sent{background:blue;}
+.delivered{background:purple;}
+.done{background:green;}
 </style>
 </head>
 
 <body>
 
-<div class="header">🚀 Deepak Ultra CRM</div>
+<div class="header">📊 CRM Delivery Tracking</div>
 
 <div class="card">
-
-<div class="clock" id="clock">00:00:00</div>
-<div class="date" id="date">Loading...</div>
-
-</div>
-
-<div class="card">
-
-<select id="prefix">
-<option>Mr.</option>
-<option>Mrs.</option>
-<option>Ms.</option>
-</select>
 
 <select id="template">
 <option value="recovery">Recovery</option>
@@ -132,140 +43,119 @@ cursor:pointer;
 <input id="number" placeholder="Mobile Number" oninput="autoFill(); autoSave()">
 <input id="name" placeholder="Customer Name" oninput="autoSave()">
 
-<button onclick="send()">📩 Send WhatsApp</button>
-
-<input type="file" onchange="importData(event)">
+<button onclick="send()">Send WhatsApp</button>
 
 </div>
 
 <div class="card">
-<input id="search" placeholder="🔍 Search..." oninput="load()">
+<input id="search" placeholder="Search..." oninput="load()">
 <div id="list"></div>
 </div>
-
-<div class="fab" onclick="scrollToTop()">⬆</div>
 
 <script>
 
 let number=document.getElementById("number");
 let nameField=document.getElementById("name");
 
-/* LIVE CLOCK */
-function updateClock(){
-let now=new Date();
-
-let time=now.toLocaleTimeString();
-let date=now.toLocaleDateString(undefined,{
-weekday:'long',
-year:'numeric',
-month:'long',
-day:'numeric'
-});
-
-document.getElementById("clock").innerText=time;
-document.getElementById("date").innerText=date;
-}
-
-setInterval(updateClock,1000);
-updateClock();
-
-/* AUTO SAVE */
+/* SAVE */
 function autoSave(){
 if(number.value.length===10 && nameField.value){
+
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
-data[number.value]=nameField.value;
+
+data[number.value]={
+name:nameField.value,
+status:"pending"
+};
+
 localStorage.setItem("crm",JSON.stringify(data));
 load();
 }
 }
 
-/* AUTO FILL */
+/* FILL */
 function autoFill(){
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
-if(data[number.value]){
-nameField.value=data[number.value];
-}
-}
 
-/* DELETE */
-function deleteCustomer(num){
-let data=JSON.parse(localStorage.getItem("crm")||"{}");
-delete data[num];
-localStorage.setItem("crm",JSON.stringify(data));
-load();
+if(data[number.value]){
+nameField.value=data[number.value].name;
+}
 }
 
 /* SEND */
 function send(){
+
 let num=number.value;
-let name=nameField.value||"Customer";
-let prefix=document.getElementById("prefix").value;
-let template=document.getElementById("template").value;
+let name=nameField.value;
 
-if(!/^[0-9]{10}$/.test(num)){ alert("Invalid number"); return;}
+let data=JSON.parse(localStorage.getItem("crm")||"{}");
 
-let msg="";
+if(!data[num]) return;
 
-if(template==="recovery"){
-msg=`Dear ${prefix} ${name} Ji,
+data[num].status="sent";
 
-Recovery pending...
+localStorage.setItem("crm",JSON.stringify(data));
 
-Mobile: 9521393991`;
-}else{
-msg=`नमस्कार ${prefix} ${name} जी 🙏
+let msg="Hello "+name;
 
-Address:
-Shri Ram Motors
-Jodhpur
+window.open("https://api.whatsapp.com/send?phone=91"+num+"&text="+msg);
 
-Mobile: 9521393991`;
+load();
 }
 
-window.open("https://wa.me/91"+num+"?text="+encodeURIComponent(msg));
+/* STATUS CHANGE */
+function changeStatus(num){
+
+let data=JSON.parse(localStorage.getItem("crm")||"{}");
+
+let current=data[num].status;
+
+if(current==="pending") data[num].status="sent";
+else if(current==="sent") data[num].status="delivered";
+else if(current==="delivered") data[num].status="done";
+else data[num].status="pending";
+
+localStorage.setItem("crm",JSON.stringify(data));
+load();
 }
 
 /* LOAD */
 function load(){
+
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
 let search=document.getElementById("search").value.toLowerCase();
 let html="";
 
 for(let num in data){
-if(data[num].toLowerCase().includes(search) || num.includes(search)){
+
+if(data[num].name.toLowerCase().includes(search) || num.includes(search)){
+
+let s=data[num].status;
+
 html+=`
 <div class="item">
-<div><b>${data[num]}</b><br>${num}</div>
-<div class="actions">
-<button onclick="quickSend('${num}')">Send</button>
-<button onclick="deleteCustomer('${num}')">❌</button>
+<div>
+<b>${data[num].name}</b><br>${num}
+<br><span class="status ${s}">${s}</span>
 </div>
+
+<div>
+<button onclick="sendTo('${num}')">Send</button>
+<button onclick="changeStatus('${num}')">Status</button>
+</div>
+
 </div>`;
 }
 }
-document.getElementById("list").innerHTML=html;
+
+list.innerHTML=html;
 }
 
 /* QUICK SEND */
-function quickSend(num){
+function sendTo(num){
 number.value=num;
 autoFill();
 send();
-}
-
-/* IMPORT */
-function importData(e){
-let reader=new FileReader();
-reader.onload=function(ev){
-localStorage.setItem("crm",ev.target.result);
-load();
-};
-reader.readAsText(e.target.files[0]);
-}
-
-/* SCROLL */
-function scrollToTop(){
-window.scrollTo({top:0,behavior:"smooth"});
 }
 
 load();
