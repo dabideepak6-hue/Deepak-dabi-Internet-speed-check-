@@ -54,11 +54,19 @@ font-size:13px;
 <option>Ms.</option>
 </select>
 
+<select id="template">
+<option value="recovery">Recovery Message</option>
+<option value="workshop">Workshop Invite</option>
+</select>
+
 <input id="number" placeholder="Mobile Number" oninput="autoFill()">
 <input id="name" placeholder="Customer Name">
 
 <button onclick="save()">💾 Save</button>
 <button onclick="send()">📩 Send WhatsApp</button>
+
+<button onclick="exportData()">⬇ Export</button>
+<input type="file" onchange="importData(event)">
 
 </div>
 
@@ -69,12 +77,15 @@ font-size:13px;
 
 <div class="card">
 <h3>📋 Customers</h3>
+
+<input id="search" placeholder="Search Customer" oninput="load()">
+
 <div id="list"></div>
 </div>
 
 <script>
 
-/* SAVE CUSTOMER */
+/* SAVE */
 function save(){
 
 let num=document.getElementById("number").value;
@@ -86,6 +97,11 @@ return;
 }
 
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
+
+if(data[num]){
+alert("Already exists ⚠️");
+return;
+}
 
 data[num]=name;
 
@@ -109,19 +125,39 @@ document.getElementById("name").value=data[num];
 
 }
 
+/* DELETE */
+function deleteCustomer(num){
+
+let data=JSON.parse(localStorage.getItem("crm")||"{}");
+
+delete data[num];
+
+localStorage.setItem("crm",JSON.stringify(data));
+
+load();
+update();
+
+}
+
 /* SEND WHATSAPP */
 function send(){
 
 let num=document.getElementById("number").value;
 let name=document.getElementById("name").value || "Customer";
 let prefix=document.getElementById("prefix").value;
+let template=document.getElementById("template").value;
 
 if(!/^[0-9]{10}$/.test(num)){
 alert("Invalid number");
 return;
 }
 
-let msg=`Dear ${prefix} ${name} Ji,
+let msg="";
+
+/* RECOVERY TEMPLATE */
+if(template==="recovery"){
+
+msg=`Dear ${prefix} ${name} Ji,
 
 मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
 आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।
@@ -136,6 +172,31 @@ Deepak Dabi
 📞 9521393991
 Airtel AirFiber Recovery Advisor`;
 
+}
+
+/* WORKSHOP TEMPLATE */
+else{
+
+msg=`नमस्कार ${prefix} ${name} जी 🙏
+
+आपके पिछले वर्कशॉप अनुभव के बारे में हमें जानकारी मिली और हमें खेद है कि आपका अनुभव संतोषजनक नहीं रहा।
+
+हम आपकी संतुष्टि को सबसे अधिक महत्व देते हैं और आपको बेहतर सेवा देने के लिए प्रतिबद्ध हैं। इसी उद्देश्य से हम आपको पुनः हमारे वर्कशॉप में आमंत्रित करते हैं, ताकि इस बार आपको एक बेहतर और संतोषजनक अनुभव प्रदान किया जा सके।
+
+कृपया हमें एक और अवसर देने की कृपा करें।
+आपके लिए विशेष प्राथमिकता और बेहतर सर्विस सुनिश्चित की जाएगी।
+
+📍 Shri Ram Motors
+123, Bhagat Ki Kothi Vistar Yojna, Main Pali Road
+Jodhpur, RJ – 342001
+
+📞 9521393991
+
+धन्यवाद 🙏
+Shri Ram Motors Team`;
+
+}
+
 let url="https://wa.me/91"+num+"?text="+encodeURIComponent(msg);
 
 window.open(url);
@@ -146,15 +207,22 @@ window.open(url);
 function load(){
 
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
+let search=document.getElementById("search").value.toLowerCase();
+
 let html="";
 
 for(let num in data){
+
+if(data[num].toLowerCase().includes(search) || num.includes(search)){
 
 html+=`
 <div style="background:#222;padding:10px;margin:5px;border-radius:10px">
 <b>${data[num]}</b> (${num})
 <button onclick="quickSend('${num}')">Send</button>
+<button onclick="deleteCustomer('${num}')">❌</button>
 </div>`;
+}
+
 }
 
 document.getElementById("list").innerHTML=html;
@@ -175,6 +243,37 @@ function update(){
 
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
 document.getElementById("total").innerText=Object.keys(data).length;
+
+}
+
+/* EXPORT */
+function exportData(){
+
+let data=localStorage.getItem("crm");
+
+let blob=new Blob([data],{type:"application/json"});
+
+let a=document.createElement("a");
+a.href=URL.createObjectURL(blob);
+a.download="crm_backup.json";
+a.click();
+
+}
+
+/* IMPORT */
+function importData(event){
+
+let file=event.target.files[0];
+
+let reader=new FileReader();
+
+reader.onload=function(e){
+localStorage.setItem("crm",e.target.result);
+load();
+update();
+};
+
+reader.readAsText(file);
 
 }
 
