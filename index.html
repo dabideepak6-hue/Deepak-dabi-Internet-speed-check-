@@ -2,122 +2,185 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Full Auto YouTube System</title>
+<title>Deepak Recovery CRM</title>
 
 <style>
-body{background:#020617;color:white;font-family:Arial;text-align:center;margin:0;}
-.card{margin:10px;padding:15px;border-radius:15px;background:#111;box-shadow:0 0 15px #00f5ff;}
-input,button,textarea{width:90%;padding:10px;margin:5px;border:none;border-radius:10px;}
-button{background:#00f5ff;color:black;font-weight:bold;}
-canvas{width:95%;border-radius:10px;}
+body{
+background:#020617;
+color:white;
+font-family:Arial;
+text-align:center;
+margin:0;
+}
+
+.card{
+margin:10px;
+padding:15px;
+border-radius:15px;
+background:#111;
+box-shadow:0 0 15px #00f5ff;
+}
+
+input,select,button{
+width:90%;
+padding:12px;
+margin:5px;
+border:none;
+border-radius:10px;
+}
+
+button{
+background:linear-gradient(45deg,#00f5ff,#00ff9d);
+font-weight:bold;
+color:black;
+}
+
+#list{
+text-align:left;
+font-size:13px;
+}
 </style>
 </head>
 
 <body>
 
-<h2>🚀 Full Auto YouTube Creator</h2>
+<h2>📲 Deepak Recovery CRM</h2>
 
 <div class="card">
-<input id="topic" placeholder="Enter topic (Hanuman bhajan)">
-<button onclick="generateAll()">✨ Generate All</button>
-<button onclick="download()">⬇ Download Video</button>
+
+<select id="prefix">
+<option>Mr.</option>
+<option>Mrs.</option>
+<option>Ms.</option>
+</select>
+
+<input id="number" placeholder="Mobile Number" oninput="autoFill()">
+<input id="name" placeholder="Customer Name">
+
+<button onclick="save()">💾 Save</button>
+<button onclick="send()">📩 Send WhatsApp</button>
+
 </div>
 
 <div class="card">
-<textarea id="lyrics"></textarea>
-<textarea id="seo"></textarea>
-<canvas id="canvas" width="720" height="1280"></canvas>
+<h3>📊 Dashboard</h3>
+<p>Total: <span id="total">0</span></p>
+</div>
+
+<div class="card">
+<h3>📋 Customers</h3>
+<div id="list"></div>
 </div>
 
 <script>
 
-let canvas=document.getElementById("canvas");
-let ctx=canvas.getContext("2d");
-let recorder, chunks=[];
+/* SAVE CUSTOMER */
+function save(){
 
-/* MAIN */
-function generateAll(){
+let num=document.getElementById("number").value;
+let name=document.getElementById("name").value;
 
-let topic=document.getElementById("topic").value||"Hanuman";
+if(!num || !name){
+alert("Enter details");
+return;
+}
 
-/* LYRICS */
-let lyrics=`जय ${topic},
-तेरी भक्ति सबसे न्यारी,
-तेरा नाम ही सहारा,
-जीवन में उजियारी।`;
+let data=JSON.parse(localStorage.getItem("crm")||"{}");
 
-document.getElementById("lyrics").value=lyrics;
+data[num]=name;
 
-/* SEO */
-document.getElementById("seo").value=
-`${topic} bhajan 🙏 | Powerful devotional song 🔥
-#${topic} #Bhajan #AI`;
+localStorage.setItem("crm",JSON.stringify(data));
 
-/* VIDEO */
-startVideo(lyrics);
+update();
+load();
+
+alert("Saved ✅");
+}
+
+/* AUTO FILL */
+function autoFill(){
+
+let num=document.getElementById("number").value;
+let data=JSON.parse(localStorage.getItem("crm")||"{}");
+
+if(data[num]){
+document.getElementById("name").value=data[num];
+}
 
 }
 
-/* VIDEO */
-async function startVideo(text){
+/* SEND WHATSAPP */
+function send(){
 
-let stream=canvas.captureStream(30);
-recorder=new MediaRecorder(stream);
-chunks=[];
+let num=document.getElementById("number").value;
+let name=document.getElementById("name").value || "Customer";
+let prefix=document.getElementById("prefix").value;
 
-recorder.ondataavailable=e=>chunks.push(e.data);
-recorder.start();
+if(!/^[0-9]{10}$/.test(num)){
+alert("Invalid number");
+return;
+}
 
-/* VOICE */
-let utter=new SpeechSynthesisUtterance(text);
-utter.lang="hi-IN";
-utter.rate=0.85;
-speechSynthesis.speak(utter);
+let msg=`Dear ${prefix} ${name} Ji,
 
-let lines=text.split("\n");
+मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
+आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।
 
-for(let line of lines){
+कृपया device ready रखें 🙏
+Kindly share your current location for smooth coordination.
 
-await draw(line);
-await new Promise(r=>setTimeout(r,3000));
+Device return न करने की स्थिति में Airtel द्वारा penalty charges लग सकते हैं।
+
+धन्यवाद,
+Deepak Dabi
+📞 9521393991
+Airtel AirFiber Recovery Advisor`;
+
+let url="https://wa.me/91"+num+"?text="+encodeURIComponent(msg);
+
+window.open(url);
 
 }
 
-recorder.stop();
+/* LOAD LIST */
+function load(){
+
+let data=JSON.parse(localStorage.getItem("crm")||"{}");
+let html="";
+
+for(let num in data){
+
+html+=`
+<div style="background:#222;padding:10px;margin:5px;border-radius:10px">
+<b>${data[num]}</b> (${num})
+<button onclick="quickSend('${num}')">Send</button>
+</div>`;
+}
+
+document.getElementById("list").innerHTML=html;
 
 }
 
-/* DRAW SCENE */
-async function draw(text){
+/* QUICK SEND */
+function quickSend(num){
 
-let img=new Image();
-img.crossOrigin="anonymous";
-img.src="https://image.pollinations.ai/prompt/"+encodeURIComponent(text);
-
-await new Promise(r=>img.onload=r);
-
-ctx.drawImage(img,0,0,canvas.width,canvas.height);
-
-ctx.fillStyle="white";
-ctx.font="40px Arial";
-ctx.fillText(text,40,canvas.height-100);
+document.getElementById("number").value=num;
+autoFill();
+send();
 
 }
 
-/* DOWNLOAD */
-function download(){
+/* DASHBOARD */
+function update(){
 
-recorder.onstop=function(){
-let blob=new Blob(chunks,{type:"video/webm"});
-let url=URL.createObjectURL(blob);
-
-let a=document.createElement("a");
-a.href=url;
-a.download="youtube_video.webm";
-a.click();
-};
+let data=JSON.parse(localStorage.getItem("crm")||"{}");
+document.getElementById("total").innerText=Object.keys(data).length;
 
 }
+
+/* INIT */
+update();
+load();
 
 </script>
 
