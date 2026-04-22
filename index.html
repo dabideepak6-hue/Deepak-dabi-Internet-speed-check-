@@ -2,36 +2,22 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Deepak CRM Tracking</title>
+<title>Deepak CRM</title>
 
 <style>
 body{font-family:Arial;background:#020617;color:white;margin:0;}
-.header{padding:15px;text-align:center;background:#111;}
+.header{padding:15px;text-align:center;font-size:20px;background:#111;}
 .card{margin:10px;padding:15px;background:#111;border-radius:12px;}
-
-input,select,button{
-width:100%;padding:10px;margin:5px;border-radius:8px;border:none;
-}
-
+input,select,button{width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none;}
 button{background:#00f5ff;color:black;font-weight:bold;}
-
-.item{
-background:#020617;padding:10px;margin:5px;border-radius:10px;
-display:flex;justify-content:space-between;align-items:center;
-}
-
-.status{font-size:12px;padding:4px 8px;border-radius:6px;}
-
-.pending{background:orange;}
-.sent{background:blue;}
-.delivered{background:purple;}
-.done{background:green;}
+.item{background:#020617;padding:10px;margin:6px 0;border-radius:10px;display:flex;justify-content:space-between;}
+.actions button{width:auto;padding:6px 10px;font-size:12px;}
 </style>
 </head>
 
 <body>
 
-<div class="header">📊 CRM Delivery Tracking</div>
+<div class="header">📲 Deepak CRM</div>
 
 <div class="card">
 
@@ -43,12 +29,12 @@ display:flex;justify-content:space-between;align-items:center;
 <input id="number" placeholder="Mobile Number" oninput="autoFill(); autoSave()">
 <input id="name" placeholder="Customer Name" oninput="autoSave()">
 
-<button onclick="send()">Send WhatsApp</button>
+<button onclick="send()">📩 Send WhatsApp</button>
 
 </div>
 
 <div class="card">
-<input id="search" placeholder="Search..." oninput="load()">
+<input id="search" placeholder="🔍 Search..." oninput="load()">
 <div id="list"></div>
 </div>
 
@@ -57,28 +43,21 @@ display:flex;justify-content:space-between;align-items:center;
 let number=document.getElementById("number");
 let nameField=document.getElementById("name");
 
-/* SAVE */
+/* AUTO SAVE */
 function autoSave(){
 if(number.value.length===10 && nameField.value){
-
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
-
-data[number.value]={
-name:nameField.value,
-status:"pending"
-};
-
+data[number.value]=nameField.value;
 localStorage.setItem("crm",JSON.stringify(data));
 load();
 }
 }
 
-/* FILL */
+/* AUTO FILL */
 function autoFill(){
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
-
 if(data[number.value]){
-nameField.value=data[number.value].name;
+nameField.value=data[number.value];
 }
 }
 
@@ -86,37 +65,65 @@ nameField.value=data[number.value].name;
 function send(){
 
 let num=number.value;
-let name=nameField.value;
+let name=nameField.value || "Customer";
+let template=document.getElementById("template").value;
 
-let data=JSON.parse(localStorage.getItem("crm")||"{}");
-
-if(!data[num]) return;
-
-data[num].status="sent";
-
-localStorage.setItem("crm",JSON.stringify(data));
-
-let msg="Hello "+name;
-
-window.open("https://api.whatsapp.com/send?phone=91"+num+"&text="+msg);
-
-load();
+if(!/^[0-9]{10}$/.test(num)){
+alert("Enter valid number");
+return;
 }
 
-/* STATUS CHANGE */
-function changeStatus(num){
+let msg="";
 
-let data=JSON.parse(localStorage.getItem("crm")||"{}");
+/* RECOVERY */
+if(template==="recovery"){
 
-let current=data[num].status;
+msg=`Dear ${name} Ji,
 
-if(current==="pending") data[num].status="sent";
-else if(current==="sent") data[num].status="delivered";
-else if(current==="delivered") data[num].status="done";
-else data[num].status="pending";
+मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
+आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।
 
-localStorage.setItem("crm",JSON.stringify(data));
-load();
+कृपया device ready रखें 🙏
+Kindly share your current location for smooth coordination.
+
+Device return न करने की स्थिति में Airtel द्वारा penalty charges लग सकते हैं।
+
+धन्यवाद,
+Deepak Dabi
+📞 9521393991
+Airtel AirFiber Recovery Advisor`;
+
+}
+
+/* WORKSHOP (FULL MESSAGE) */
+else{
+
+msg=`नमस्कार ${name} जी 🙏
+
+आपके पिछले वर्कशॉप अनुभव के बारे में हमें जानकारी मिली और हमें खेद है कि आपका अनुभव संतोषजनक नहीं रहा।
+
+हम आपकी संतुष्टि को सबसे अधिक महत्व देते हैं और आपको बेहतर सेवा देने के लिए प्रतिबद्ध हैं। इसी उद्देश्य से हम आपको पुनः हमारे वर्कशॉप में आमंत्रित करते हैं, ताकि इस बार आपको एक बेहतर और संतोषजनक अनुभव प्रदान किया जा सके।
+
+कृपया हमें एक और अवसर देने की कृपा करें।
+आपके लिए विशेष प्राथमिकता और बेहतर सर्विस सुनिश्चित की जाएगी।
+
+Address:
+Shri Ram Motors
+123, Bhagat Ki Kothi Vistar Yojna, Main Pali Road
+Jodhpur, RJ – 342001
+
+Mobile: 9521393991
+
+धन्यवाद 🙏
+Shri Ram Motors Team`;
+
+}
+
+/* SEND WITHOUT CUT */
+let url="https://api.whatsapp.com/send?phone=91"+num+"&text="+encodeURIComponent(msg);
+
+window.open(url,"_blank");
+
 }
 
 /* LOAD */
@@ -127,37 +134,38 @@ let search=document.getElementById("search").value.toLowerCase();
 let html="";
 
 for(let num in data){
-
-if(data[num].name.toLowerCase().includes(search) || num.includes(search)){
-
-let s=data[num].status;
-
+if(data[num].toLowerCase().includes(search) || num.includes(search)){
 html+=`
 <div class="item">
-<div>
-<b>${data[num].name}</b><br>${num}
-<br><span class="status ${s}">${s}</span>
+<div><b>${data[num]}</b><br>${num}</div>
+<div class="actions">
+<button onclick="quickSend('${num}')">Send</button>
+<button onclick="deleteCustomer('${num}')">❌</button>
 </div>
-
-<div>
-<button onclick="sendTo('${num}')">Send</button>
-<button onclick="changeStatus('${num}')">Status</button>
-</div>
-
 </div>`;
 }
 }
 
-list.innerHTML=html;
+document.getElementById("list").innerHTML=html;
+
+}
+
+/* DELETE */
+function deleteCustomer(num){
+let data=JSON.parse(localStorage.getItem("crm")||"{}");
+delete data[num];
+localStorage.setItem("crm",JSON.stringify(data));
+load();
 }
 
 /* QUICK SEND */
-function sendTo(num){
+function quickSend(num){
 number.value=num;
 autoFill();
 send();
 }
 
+/* INIT */
 load();
 
 </script>
