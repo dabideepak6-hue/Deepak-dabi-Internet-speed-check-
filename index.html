@@ -24,19 +24,12 @@ backdrop-filter:blur(15px);
 border-bottom:1px solid rgba(255,255,255,0.1);
 }
 
-/* GRID */
-.container{
-display:grid;
-grid-template-columns:1fr;
-gap:12px;
-padding:10px;
-}
-
 /* CARD */
 .card{
-background:rgba(255,255,255,0.05);
-border-radius:18px;
+margin:12px;
 padding:15px;
+border-radius:18px;
+background:rgba(255,255,255,0.05);
 backdrop-filter:blur(12px);
 box-shadow:0 0 25px rgba(0,255,255,0.15);
 }
@@ -50,7 +43,6 @@ border-radius:10px;
 border:none;
 background:#020617;
 color:white;
-outline:none;
 }
 
 /* BUTTON */
@@ -64,12 +56,34 @@ background:linear-gradient(45deg,#00f5ff,#00ff9d);
 color:black;
 margin-top:8px;
 cursor:pointer;
-transition:0.3s;
 }
 
-button:hover{
-transform:scale(1.05);
-box-shadow:0 0 15px #00f5ff;
+/* CLOCK */
+.clock{
+text-align:center;
+font-size:22px;
+font-weight:bold;
+}
+
+.date{
+font-size:14px;
+opacity:0.8;
+}
+
+/* LIST */
+.item{
+background:#020617;
+padding:12px;
+margin:8px 0;
+border-radius:12px;
+display:flex;
+justify-content:space-between;
+}
+
+.actions button{
+width:auto;
+padding:6px 10px;
+font-size:12px;
 }
 
 /* FLOAT BUTTON */
@@ -87,52 +101,6 @@ justify-content:center;
 font-size:22px;
 color:black;
 cursor:pointer;
-box-shadow:0 0 20px #00f5ff;
-}
-
-/* LIST */
-.item{
-background:#020617;
-padding:12px;
-margin:8px 0;
-border-radius:12px;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-.actions button{
-width:auto;
-padding:6px 10px;
-margin-left:5px;
-font-size:12px;
-}
-
-/* DASHBOARD */
-.dashboard{
-display:flex;
-justify-content:space-between;
-}
-
-.stat{
-flex:1;
-margin:5px;
-padding:10px;
-border-radius:12px;
-background:#020617;
-text-align:center;
-}
-
-/* SEARCH */
-.search{
-margin-bottom:10px;
-}
-
-/* RESPONSIVE */
-@media(min-width:768px){
-.container{
-grid-template-columns:1fr 1fr;
-}
 }
 </style>
 </head>
@@ -141,7 +109,12 @@ grid-template-columns:1fr 1fr;
 
 <div class="header">🚀 Deepak Ultra CRM</div>
 
-<div class="container">
+<div class="card">
+
+<div class="clock" id="clock">00:00:00</div>
+<div class="date" id="date">Loading...</div>
+
+</div>
 
 <div class="card">
 
@@ -153,7 +126,7 @@ grid-template-columns:1fr 1fr;
 
 <select id="template">
 <option value="recovery">Recovery</option>
-<option value="workshop">Workshop Invite</option>
+<option value="workshop">Workshop</option>
 </select>
 
 <input id="number" placeholder="Mobile Number" oninput="autoFill(); autoSave()">
@@ -165,17 +138,8 @@ grid-template-columns:1fr 1fr;
 
 </div>
 
-<div class="card dashboard">
-<div class="stat">
-<h2 id="total">0</h2>
-<p>Total Customers</p>
-</div>
-</div>
-
-</div>
-
 <div class="card">
-<input class="search" id="search" placeholder="🔍 Search..." oninput="load()">
+<input id="search" placeholder="🔍 Search..." oninput="load()">
 <div id="list"></div>
 </div>
 
@@ -183,20 +147,35 @@ grid-template-columns:1fr 1fr;
 
 <script>
 
-/* ELEMENTS */
 let number=document.getElementById("number");
 let nameField=document.getElementById("name");
 
+/* LIVE CLOCK */
+function updateClock(){
+let now=new Date();
+
+let time=now.toLocaleTimeString();
+let date=now.toLocaleDateString(undefined,{
+weekday:'long',
+year:'numeric',
+month:'long',
+day:'numeric'
+});
+
+document.getElementById("clock").innerText=time;
+document.getElementById("date").innerText=date;
+}
+
+setInterval(updateClock,1000);
+updateClock();
+
 /* AUTO SAVE */
 function autoSave(){
-let num=number.value;
-let name=nameField.value;
-
-if(num.length===10 && name){
+if(number.value.length===10 && nameField.value){
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
-data[num]=name;
+data[number.value]=nameField.value;
 localStorage.setItem("crm",JSON.stringify(data));
-update(); load();
+load();
 }
 }
 
@@ -213,56 +192,34 @@ function deleteCustomer(num){
 let data=JSON.parse(localStorage.getItem("crm")||"{}");
 delete data[num];
 localStorage.setItem("crm",JSON.stringify(data));
-load(); update();
+load();
 }
 
 /* SEND */
 function send(){
 let num=number.value;
-let name=nameField.value || "Customer";
+let name=nameField.value||"Customer";
 let prefix=document.getElementById("prefix").value;
 let template=document.getElementById("template").value;
 
-if(!/^[0-9]{10}$/.test(num)){
-alert("Invalid number");
-return;
-}
+if(!/^[0-9]{10}$/.test(num)){ alert("Invalid number"); return;}
 
 let msg="";
 
-/* RECOVERY MESSAGE */
 if(template==="recovery"){
 msg=`Dear ${prefix} ${name} Ji,
 
-मैं Deepak Dabi, Airtel AirFiber Recovery Advisor बोल रहा हूँ।
-आपका Airtel AirFiber Box (Router & Adapter) recovery हेतु collect करना है।
+Recovery pending...
 
-कृपया device ready रखें 🙏
-Kindly share your current location for smooth coordination.
-
-Device return न करने की स्थिति में Airtel द्वारा penalty charges लग सकते हैं।
-
-धन्यवाद,
-Deepak Dabi
-📞 9521393991`;
-}
-
-/* WORKSHOP MESSAGE */
-else{
+Mobile: 9521393991`;
+}else{
 msg=`नमस्कार ${prefix} ${name} जी 🙏
 
-आपके पिछले वर्कशॉप अनुभव के बारे में हमें जानकारी मिली और हमें खेद है कि आपका अनुभव संतोषजनक नहीं रहा।
+Address:
+Shri Ram Motors
+Jodhpur
 
-हम आपको पुनः हमारे वर्कशॉप में आमंत्रित करते हैं ताकि इस बार बेहतर सेवा दे सकें।
-
-📍 Shri Ram Motors
-123, Bhagat Ki Kothi Vistar Yojna, Main Pali Road
-Jodhpur, RJ – 342001
-
-📞 9521393991
-
-धन्यवाद 🙏
-Shri Ram Motors Team`;
+Mobile: 9521393991`;
 }
 
 window.open("https://wa.me/91"+num+"?text="+encodeURIComponent(msg));
@@ -296,29 +253,22 @@ autoFill();
 send();
 }
 
-/* UPDATE */
-function update(){
-let data=JSON.parse(localStorage.getItem("crm")||"{}");
-document.getElementById("total").innerText=Object.keys(data).length;
-}
-
 /* IMPORT */
 function importData(e){
 let reader=new FileReader();
 reader.onload=function(ev){
 localStorage.setItem("crm",ev.target.result);
-load(); update();
+load();
 };
 reader.readAsText(e.target.files[0]);
 }
 
-/* SCROLL TOP */
+/* SCROLL */
 function scrollToTop(){
 window.scrollTo({top:0,behavior:"smooth"});
 }
 
-/* INIT */
-update(); load();
+load();
 
 </script>
 
